@@ -1,0 +1,34 @@
+<?php
+include_once   "/pdfparser/Smalot/PdfParser/Parser.php";
+include_once   "/pdfparser/Smalot/PdfParser/Document.php";
+include_once   "/pdfparser/Smalot/PdfParser/Header.php";
+include_once   "/pdfparser/Smalot/PdfParser/Object.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element.php";
+include_once   "/pdfparser/Smalot/PdfParser/Encoding.php";
+include_once   "/pdfparser/Smalot/PdfParser/Font.php";
+include_once   "/pdfparser/Smalot/PdfParser/Page.php";
+include_once   "/pdfparser/Smalot/PdfParser/Pages.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementArray.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementBoolean.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementString.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementDate.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementHexa.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementMissing.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementName.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementNull.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementNumeric.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementStruct.php";
+include_once   "/pdfparser/Smalot/PdfParser/Element/ElementXRef.php";
+
+include_once   "/pdfparser/Smalot/PdfParser/Encoding/StandardEncoding.php";
+include_once   "/pdfparser/Smalot/PdfParser/Encoding/ISOLatin1Encoding.php";
+include_once   "/pdfparser/Smalot/PdfParser/Encoding/ISOLatin9Encoding.php";
+include_once   "/pdfparser/Smalot/PdfParser/Encoding/MacRomanEncoding.php";
+include_once   "/pdfparser/Smalot/PdfParser/Encoding/WinAnsiEncoding.php";
+include_once   "/pdfparser/Smalot/PdfParser/Font/FontCIDFontType0.php";
+include_once   "/pdfparser/Smalot/PdfParser/Font/FontCIDFontType2.php";
+include_once   "/pdfparser/Smalot/PdfParser/Font/FontTrueType.php";
+include_once   "/pdfparser/Smalot/PdfParser/Font/FontType0.php";
+include_once   "/pdfparser/Smalot/PdfParser/Font/FontType1.php";
+include_once   "/pdfparser/Smalot/PdfParser/XObject/Form.php";
+include_once   "/pdfparser/Smalot/PdfParser/XObject/Image.php";
