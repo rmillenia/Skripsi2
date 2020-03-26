@@ -12,7 +12,9 @@
 	},
 	"require": {
 		"php": ">=5.3.7",
-		"smalot/pdfparser": "^0.14.0"
+		"smalot/pdfparser": "^0.14.0",
+		"gufy/pdftohtml-php": "~2",
+		"sastrawi/sastrawi": "1"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
