@@ -23,6 +23,42 @@ class Documents extends CI_Controller {
 		$this->load->view('pages/upload');
 	}
 
+	public function upload()
+	{
+		$this->load->helper(array('form','url'));
+        // set path to store uploaded files
+        $config['upload_path'] = './assets/uploads/';
+        // set allowed file types
+        $config['allowed_types'] = 'pdf';
+        // set upload limit, set 0 for no limit
+        $config['max_size']    = 0;
+ 
+        // load upload library with custom config settings
+        $this->load->library('upload', $config);
+ 
+         // if upload failed , display errors
+        if (!$this->upload->do_upload('file'))
+        {
+            $data['error'] = $this->upload->display_errors();
+             $this->load->view('pages/upload', $data);
+         }
+        else
+        {
+              // print_r($this->upload->data());
+        	echo "success";
+             // print uploaded file data
+        }
+	}
+
+	public function doc(){
+		$this->load->view('pages/documents');
+	}
+
+	public function getDocuments(){
+		$data['data'] = $this->db->order_by('id', 'desc')->get('documents')->result();
+        echo json_encode($data);
+	}
+
 	// public function go()
 	// {
 	// 	$parser = new \Smalot\PdfParser\Parser();
@@ -67,8 +103,8 @@ class Documents extends CI_Controller {
 	// 	echo $total_pages;
 	// }
 
-	public function pdf(){
-		$server_file = base_url('assets/uploads/news3.pdf');
+	public function pdf($server_file){
+		// $server_file = base_url('assets/uploads/news3.pdf');
 
 		$parser = new \Smalot\PdfParser\Parser();
 		$pdf = $parser->parseFile($server_file);
@@ -101,6 +137,13 @@ class Documents extends CI_Controller {
 		            }
 		        }
 
+		        $beforeNo = 'NOMOR:';
+				$afterNo = 'PENGADILAN';
+
+		        $noPerkara = substr($text, strpos($text, $beforeNo) + strlen($beforeNo)); 
+		        $noPerkara = strstr($noPerkara, $afterNo, true);   
+
+
 		        $afterString = 'PENDAHULUAN';
 				$beforeString = 'II.';
 
@@ -112,8 +155,10 @@ class Documents extends CI_Controller {
 			        if ($no_spacing_error >= 30 || $excessive_spacing_error >= 150) {
 			        	echo "Too many formatting issues<br />";
 			        	echo $text;
+
 			        } else {
 			        	// echo "Success!<br />";
+			        	echo $noPerkara;
 			        	echo $text;
 			        }
 			        /* End of additional step */
@@ -133,6 +178,8 @@ class Documents extends CI_Controller {
 		$string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);  
 		return $string;
 	}
+
+
 
 	
 }
