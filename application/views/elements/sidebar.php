@@ -117,7 +117,7 @@
 						<li class="nav-item">
 							<a data-toggle="collapse" href="#forms">
 								<i class="fas fa-pen-square"></i>
-								<p>Summarize</p>
+								<p>Summarize Result</p>
 								<span class="caret"></span>
 							</a>
 							<div class="collapse" id="forms">
@@ -130,7 +130,7 @@
 								</ul>
 							</div>
 						</li>
-						<li class="nav-item">
+						<!-- <li class="nav-item">
 							<a data-toggle="collapse" href="#tables">
 								<i class="fas fa-table"></i>
 								<p>Tables</p>
@@ -150,8 +150,8 @@
 									</li>
 								</ul>
 							</div>
-						</li>
-						<li class="nav-item">
+						</li> -->
+						<!-- <li class="nav-item">
 							<a data-toggle="collapse" href="#maps">
 								<i class="fas fa-map-marker-alt"></i>
 								<p>Maps</p>
@@ -166,8 +166,8 @@
 									</li>
 								</ul>
 							</div>
-						</li>
-						<li class="nav-item">
+						</li> -->
+						<!-- <li class="nav-item">
 							<a data-toggle="collapse" href="#charts">
 								<i class="far fa-chart-bar"></i>
 								<p>Charts</p>
@@ -238,7 +238,7 @@
 									</li>
 								</ul>
 							</div>
-						</li>
+						</li> -->
 					</ul>
 				</div>
 			</div>

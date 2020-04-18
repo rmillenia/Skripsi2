@@ -37,6 +37,7 @@ class Documents extends CI_Controller {
         $this->load->library('upload', $config);
  
          // if upload failed , display errors
+
         if (!$this->upload->do_upload('file'))
         {
             $data['error'] = $this->upload->display_errors();
@@ -44,8 +45,14 @@ class Documents extends CI_Controller {
          }
         else
         {
+			$upload_data = $this->upload->data(); //Returns array of containing all of the data related to the file you uploaded.
+			$file_name = $upload_data['file_name'];
+       		$data_doc = array(
+		       			'file'	=> $file_name);
               // print_r($this->upload->data());
-        	echo "success";
+        	$insert = $this->db->insert('documents', $data_doc);
+        	$id_doc = $this->db->insert_id();
+        	$this->pdf($file_name, $id_doc);
              // print uploaded file data
         }
 	}
@@ -59,52 +66,12 @@ class Documents extends CI_Controller {
         echo json_encode($data);
 	}
 
-	// public function go()
-	// {
-	// 	$parser = new \Smalot\PdfParser\Parser();
-	// 	$pdf    = $parser->parseFile(base_url('assets/uploads/news3.pdf'));
+	// public function update_doc($id_doc = null){
 
-	// 	$text = $pdf->getText();  
-
-	// 	$afterString = 'PENDAHULUAN';
-	// 	$beforeString = 'II.';
-
-	// 	$text = substr($text, strpos($text, $afterString) + strlen($afterString));    
-	// 	$text = strstr($text, $beforeString, true);
-
-
-	// 	echo $text;
 	// }
 
-	// public function html()
-	// {
-	// 	// use Gufy\PdfToHtml\Config;
-	// 	// change pdftohtml bin location
-	// 	// Config::set('pdftohtml.bin', 'C:/poppler-0.37/bin/pdftohtml.exe');
-
-	// 	// // change pdfinfo bin location
-	// 	// Config::set('pdfinfo.bin', 'C:/poppler-0.37/bin/pdfinfo.exe');
-	// 	// initiate
-	// 	$pdf = new Gufy\PdfToHtml\Pdf('file.pdf');
-
-	// 	// convert to html and return it as [Dom Object](https://github.com/paquettg/php-html-parser)
-	// 	$html = $pdf->html();
-
-	// 	// check if your pdf has more than one pages
-	// 	$total_pages = $pdf->getPages();
-
-	// 	// Your pdf happen to have more than one pages and you want to go another page? Got it. use this command to change the current page to page 3
-	// 	$html->goToPage(3);
-
-	// 	// and then you can do as you please with that dom, you can find any element you want
-	// 	$paragraphs = $html->find('body > p');
-
-
-	// 	echo $total_pages;
-	// }
-
-	public function pdf($server_file){
-		// $server_file = base_url('assets/uploads/news3.pdf');
+	public function pdf($file_name = null, $id_doc = null){
+		$server_file = base_url('assets/uploads/'.$file_name);
 
 		$parser = new \Smalot\PdfParser\Parser();
 		$pdf = $parser->parseFile($server_file);
@@ -150,6 +117,13 @@ class Documents extends CI_Controller {
 				$text = substr($text, strpos($text, $afterString) + strlen($afterString));    
 				$text = strstr($text, $beforeString, true);
 
+				$data = array(
+						'no_perkara' => $noPerkara
+						);
+
+		        $this->db->where('id', $id_doc);
+		        $this->db->update('documents', $data);
+
 			        // Set the boundaries of errors you can accept
 			        // E.g., we reject the change if there are 30 or more $no_spacing_error or 150 or more $excessive_spacing_error issues
 			        if ($no_spacing_error >= 30 || $excessive_spacing_error >= 150) {
@@ -158,8 +132,21 @@ class Documents extends CI_Controller {
 
 			        } else {
 			        	// echo "Success!<br />";
-			        	echo $noPerkara;
-			        	echo $text;
+			        	// echo $noPerkara;
+
+			        	// return $text;
+			        	// echo $text;
+
+			        	// $subject = 'abc sdfs.    def ghi; this is an.email@addre.ss! asdasdasd? abc xyz';
+						// split on whitespace between sentences preceded by a punctuation mark
+
+						$this->paragraph_to_sentences($text, $id_doc);
+
+						
+
+
+						// print_r($result);
+
 			        }
 			        /* End of additional step */
 			        /**************************/
@@ -178,6 +165,72 @@ class Documents extends CI_Controller {
 		$string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);  
 		return $string;
 	}
+
+	function paragraph_to_sentences($text = null, $id_doc = null){
+
+		// untuk mecah perkalimat
+		$result = preg_split('/(?<!Th.|No.|Perk.|Reg.|Rp.)(?<=[.?!;])\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+
+		$arr_sentence = [];
+		foreach ($result as $k => $v) {
+                if (trim($v) == "") {
+                    continue;
+                }
+                if (substr($v, -1, 1) == ".") {
+                    $v = substr($v, 0, -1);
+                }
+                $arr_sentence[] = [
+                    'sentence' => $v,
+                    'fk_documents' => $id_doc
+                ];
+        }
+ 
+        return $this->db->insert_batch('sentence', $arr_sentence);
+	}
+
+	// public function go()
+	// {
+	// 	$parser = new \Smalot\PdfParser\Parser();
+	// 	$pdf    = $parser->parseFile(base_url('assets/uploads/news3.pdf'));
+
+	// 	$text = $pdf->getText();  
+
+	// 	$afterString = 'PENDAHULUAN';
+	// 	$beforeString = 'II.';
+
+	// 	$text = substr($text, strpos($text, $afterString) + strlen($afterString));    
+	// 	$text = strstr($text, $beforeString, true);
+
+
+	// 	echo $text;
+	// }
+
+	// public function html()
+	// {
+	// 	// use Gufy\PdfToHtml\Config;
+	// 	// change pdftohtml bin location
+	// 	// Config::set('pdftohtml.bin', 'C:/poppler-0.37/bin/pdftohtml.exe');
+
+	// 	// // change pdfinfo bin location
+	// 	// Config::set('pdfinfo.bin', 'C:/poppler-0.37/bin/pdfinfo.exe');
+	// 	// initiate
+	// 	$pdf = new Gufy\PdfToHtml\Pdf('file.pdf');
+
+	// 	// convert to html and return it as [Dom Object](https://github.com/paquettg/php-html-parser)
+	// 	$html = $pdf->html();
+
+	// 	// check if your pdf has more than one pages
+	// 	$total_pages = $pdf->getPages();
+
+	// 	// Your pdf happen to have more than one pages and you want to go another page? Got it. use this command to change the current page to page 3
+	// 	$html->goToPage(3);
+
+	// 	// and then you can do as you please with that dom, you can find any element you want
+	// 	$paragraphs = $html->find('body > p');
+
+
+	// 	echo $total_pages;
+	// }
 
 
 
