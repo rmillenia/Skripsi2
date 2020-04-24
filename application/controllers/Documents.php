@@ -3,21 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Documents extends CI_Controller {
 
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see https://codeigniter.com/user_guide/general/urls.html
-	 */
 	public function index()
 	{
 		$this->load->view('pages/upload');
@@ -27,34 +12,34 @@ class Documents extends CI_Controller {
 	{
 		$this->load->helper(array('form','url'));
         // set path to store uploaded files
-        $config['upload_path'] = './assets/uploads/';
+		$config['upload_path'] = './assets/uploads/';
         // set allowed file types
-        $config['allowed_types'] = 'pdf';
+		$config['allowed_types'] = 'pdf';
         // set upload limit, set 0 for no limit
-        $config['max_size']    = 0;
- 
+		$config['max_size']    = 0;
+
         // load upload library with custom config settings
-        $this->load->library('upload', $config);
- 
+		$this->load->library('upload', $config);
+
          // if upload failed , display errors
 
-        if (!$this->upload->do_upload('file'))
-        {
-            $data['error'] = $this->upload->display_errors();
-             $this->load->view('pages/upload', $data);
-         }
-        else
-        {
+		if (!$this->upload->do_upload('file'))
+		{
+			$data['error'] = $this->upload->display_errors();
+			$this->load->view('pages/upload', $data);
+		}
+		else
+		{
 			$upload_data = $this->upload->data(); //Returns array of containing all of the data related to the file you uploaded.
 			$file_name = $upload_data['file_name'];
-       		$data_doc = array(
-		       			'file'	=> $file_name);
+			$data_doc = array(
+				'file'	=> $file_name);
               // print_r($this->upload->data());
-        	$insert = $this->db->insert('documents', $data_doc);
-        	$id_doc = $this->db->insert_id();
-        	$this->pdf($file_name, $id_doc);
+			$insert = $this->db->insert('documents', $data_doc);
+			$id_doc = $this->db->insert_id();
+			$this->pdf($file_name, $id_doc);
              // print uploaded file data
-        }
+		}
 	}
 
 	public function doc(){
@@ -63,7 +48,7 @@ class Documents extends CI_Controller {
 
 	public function getDocuments(){
 		$data['data'] = $this->db->order_by('id', 'desc')->get('documents')->result();
-        echo json_encode($data);
+		echo json_encode($data);
 	}
 
 	// public function update_doc($id_doc = null){
@@ -105,32 +90,32 @@ class Documents extends CI_Controller {
 		        }
 
 		        $beforeNo = 'NOMOR:';
-				$afterNo = 'PENGADILAN';
+		        $afterNo = 'PENGADILAN';
 
 		        $noPerkara = substr($text, strpos($text, $beforeNo) + strlen($beforeNo)); 
 		        $noPerkara = strstr($noPerkara, $afterNo, true);   
 
 
 		        $afterString = 'PENDAHULUAN';
-				$beforeString = 'II.';
+		        $beforeString = 'II.';
 
-				$text = substr($text, strpos($text, $afterString) + strlen($afterString));    
-				$text = strstr($text, $beforeString, true);
+		        $text = substr($text, strpos($text, $afterString) + strlen($afterString));    
+		        $text = strstr($text, $beforeString, true);
 
-				$data = array(
-						'no_perkara' => $noPerkara
-						);
+		        $data = array(
+		        	'no_perkara' => $noPerkara
+		        );
 
 		        $this->db->where('id', $id_doc);
 		        $this->db->update('documents', $data);
 
 			        // Set the boundaries of errors you can accept
 			        // E.g., we reject the change if there are 30 or more $no_spacing_error or 150 or more $excessive_spacing_error issues
-			        if ($no_spacing_error >= 30 || $excessive_spacing_error >= 150) {
-			        	echo "Too many formatting issues<br />";
-			        	echo $text;
+		        if ($no_spacing_error >= 30 || $excessive_spacing_error >= 150) {
+		        	echo "Too many formatting issues<br />";
+		        	echo $text;
 
-			        } else {
+		        } else {
 			        	// echo "Success!<br />";
 			        	// echo $noPerkara;
 
@@ -140,16 +125,38 @@ class Documents extends CI_Controller {
 			        	// $subject = 'abc sdfs.    def ghi; this is an.email@addre.ss! asdasdasd? abc xyz';
 						// split on whitespace between sentences preceded by a punctuation mark
 
-						$this->paragraph_to_sentences($text, $id_doc);
+		        	$sentences = $this->paragraph_to_sentences($text, $id_doc);
+		        	$preprocess = $this->pre_processing($sentences, $id_doc);
+		        	$tfidf = $this->tf_idf($preprocess, $id_doc);
 
-						
+					// foreach ($tfidf as $key => $value) {
+					//     foreach ($value as $k => $v) {
+					//         echo $tfidf[$key][$k];
+					//         echo "&nbsp";
+					//     }
+					//     echo "<br>";
+					// }
+		        	
+
+
+
+						// $a = 0;
+						// foreach ($preprocess[0]['data_id_sentence'] as $key => $value) {
+						// 	echo $a.")"; 
+						// 	echo $value;
+						// 	echo " ";
+						// 	$a++;
+						// }
+
+
+
 
 
 						// print_r($result);
 
-			        }
-			        /* End of additional step */
-			        /**************************/
+		        }
+		        /* End of additional step */
+		        /**************************/
 
 		    } else {
 		    	echo "No text extracted from PDF.";
@@ -166,26 +173,135 @@ class Documents extends CI_Controller {
 		return $string;
 	}
 
+	// function call_method($sentences = null, $id_doc = null){
+
+	// 	if ($sentences == null && $id_doc != null) {
+
+	// 		$sentences = se
+	// 	} 
+	// 	$preprocess = $this->pre_processing($sentences, $id_doc);
+	// 	$tfidf = $this->tf_idf($preprocess, $id_doc);
+	// }
+
+		// foreach ($tfidf as $key => $value) {
+		//     foreach ($value as $k => $v) {
+		//         echo $tfidf[$key][$k];
+		//         echo "&nbsp";
+		//     }
+		//     echo "<br>";
+		// }
+
 	function paragraph_to_sentences($text = null, $id_doc = null){
 
 		// untuk mecah perkalimat
 		$result = preg_split('/(?<!Th.|No.|Perk.|Reg.|Rp.)(?<=[.?!;])\s+/', $text, -1, PREG_SPLIT_NO_EMPTY);
 
-		$arr_sentence = [];
+		$sentences_array = [];
 		foreach ($result as $k => $v) {
-                if (trim($v) == "") {
-                    continue;
-                }
-                if (substr($v, -1, 1) == ".") {
-                    $v = substr($v, 0, -1);
-                }
-                $arr_sentence[] = [
-                    'sentence' => $v,
-                    'fk_documents' => $id_doc
-                ];
-        }
- 
-        return $this->db->insert_batch('sentence', $arr_sentence);
+			if (trim($v) == "") {
+				continue;
+			}
+			if (substr($v, -1, 1) == ".") {
+				$v = substr($v, 0, -1);
+			}
+			$sentences_array[] = [
+				'sentence' => $v,
+				'fk_documents' => $id_doc
+			];
+		}
+
+		$this->db->insert_batch('sentence', $sentences_array);
+
+		return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
+	}
+
+	function pre_processing($text = null, $id_doc = null){
+		$this->load->library('Preprocessing');
+
+		$data_id_sentence = [];
+		$preprocessing_sentences = [];
+		foreach ($text as $key => $value) {
+			$preprocessing_sentences[$key] = $this->preprocessing->process($value->sentence);
+		}
+
+		$array_preprocess[] = [
+			'data_id_sentence' =>  $data_id_sentence,
+			'preprocessing_sentences' => $preprocessing_sentences
+		];
+
+		return $array_preprocess;
+
+	}
+
+	function tf_idf($preprocess = null, $id_doc = null){
+		// foreach ($preprocess[0]['data_id_sentence'] as $key => $value) {
+						// 	echo $a.")"; 
+						// 	echo $value;
+						// 	echo " ";
+						// 	$a++;
+						// }
+		$text_list_word = [];
+		foreach ($preprocess[0]['preprocessing_sentences'] as $key => $value) {
+			$text_list_word = array_merge($text_list_word, $value);
+		}
+		$text_list_word = array_unique($text_list_word);
+
+		$matrix_tf = [];
+		foreach ($text_list_word as $key_word => $word) {
+
+			foreach ($preprocess[0]['preprocessing_sentences'] as $key_text => $value_text) {
+				$count_word = 0;
+				foreach ($value_text as $k => $v) {
+					if ($word == $v) {
+						$count_word++;
+					}
+				}
+				$matrix_tf[$key_word][$key_text] = $count_word;
+			}
+		}
+
+
+		$text_df = [];
+		foreach ($matrix_tf as $key => $value) {
+			$df = 0;
+			foreach ($value as $k => $v) {
+				if ($v > 0) {
+					$df++;
+				}
+			}
+			$text_df[$key] = $df;
+		}
+
+		$text_dperdf = [];
+		$text_idf = [];
+		$text_idfplus1 = [];
+		$word_count = count($preprocess[0]['preprocessing_sentences']);
+		foreach ($text_df as $key => $value) {
+			$dperdf = $word_count / $value;
+			$text_dperdf[$key] = $dperdf;
+			$idf = log10($dperdf);
+			$text_idf[$key] = $idf;
+			$text_idfplus1[$key] = $idf + 1;
+		}
+
+		$matrix_tfidf = [];
+		foreach ($matrix_tf as $key => $value) {
+			foreach ($value as $k => $v) {
+				$matrix_tfidf[$key][$k] = $v * $text_idfplus1[$key];
+			}
+		}
+
+		return $matrix_tfidf;
+
+	}
+
+	function svd(){
+
+
+	}
+
+	function lsa(){
+
 	}
 
 	// public function go()
@@ -234,7 +350,7 @@ class Documents extends CI_Controller {
 
 
 
-	
+
 }
 
 

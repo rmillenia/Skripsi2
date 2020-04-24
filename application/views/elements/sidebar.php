@@ -67,7 +67,7 @@
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="<?= base_url('Documents') ?>">
-											<span class="sub-item">Upload</span>
+											<span class="sub-item">Upload and Summarize</span>
 										</a>
 									</li>
 									<li>

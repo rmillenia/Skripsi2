@@ -10,7 +10,7 @@
             <div class="content">
                 <div class="page-inner">
                     <div class="page-header">
-                        <h4 class="page-title">Upload Nota Pembelaan</h4>
+                        <h4 class="page-title">Upload and Summarize Documents (Nota Pembelaan)</h4>
                         <ul class="breadcrumbs">
                             <li class="nav-home">
                                 <a href="#">
