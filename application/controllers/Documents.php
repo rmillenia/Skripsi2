@@ -125,9 +125,14 @@ class Documents extends CI_Controller {
 			        	// $subject = 'abc sdfs.    def ghi; this is an.email@addre.ss! asdasdasd? abc xyz';
 						// split on whitespace between sentences preceded by a punctuation mark
 
-		        	$sentences = $this->paragraph_to_sentences($text, $id_doc);
-		        	$preprocess = $this->pre_processing($sentences, $id_doc);
-		        	$tfidf = $this->tf_idf($preprocess, $id_doc);
+		        	$sentences 		= $this->paragraph_to_sentences($text, $id_doc);
+		        	$preprocess 	= $this->pre_processing($sentences, $id_doc);
+		        	$tfidf 			= $this->tf_idf($preprocess, $id_doc);
+		        	// var_dump($tfidf);
+		        	$method 		= $this->lsa($tfidf, $id_doc);
+		        	var_dump($method);
+		        	// var_dump($preprocess['0']['preprocessing_sentences']);
+		        	
 
 					// foreach ($tfidf as $key => $value) {
 					//     foreach ($value as $k => $v) {
@@ -216,24 +221,48 @@ class Documents extends CI_Controller {
 	}
 
 	function pre_processing($text = null, $id_doc = null){
-		$this->load->library('Preprocessing');
-
+		// $this->load->library('preprocessing');
 		$data_id_sentence = [];
-		$preprocessing_sentences = [];
+		$casefolding = [];
 		foreach ($text as $key => $value) {
-			$preprocessing_sentences[$key] = $this->preprocessing->process($value->sentence);
+			$data_id_sentence[$key] = $value->id_sentence;
+			$casefolding[$key] = $this->process($value->sentence,true,false,false,false,false);
+		}
+ 
+		$filtering = [];
+		foreach ($text as $key => $value) {
+			$filtering[$key] = $this->process($value->sentence,true,true,false,false,false);
 		}
 
-		$array_preprocess[] = [
+		$stemming = [];
+		foreach ($text as $key => $value) {
+			$stemming[$key] = $this->process($value->sentence,true,true,true,false,false);
+		}
+
+		$tokenizing = [];
+		foreach ($text as $key => $value) {
+			$tokenizing[$key] = $this->process($value->sentence,true,true,true,true,false);
+		}
+
+		$stopword = [];
+		foreach ($text as $key => $value) {
+			$stopword[$key] = $this->process($value->sentence,true,true,true,true,true);
+		}
+
+		$array_preprocess_result[] = [
 			'data_id_sentence' =>  $data_id_sentence,
-			'preprocessing_sentences' => $preprocessing_sentences
+			'casefolding_sentence' => $casefolding,
+			'filtering_sentence'=> $filtering,
+			'stemming_sentence' => $stemming,
+			'tokenizing_sentence' => $tokenizing,
+			'preprocessing_sentences' => $stopword
 		];
 
-		return $array_preprocess;
+		return $array_preprocess_result;
 
 	}
 
-	function tf_idf($preprocess = null, $id_doc = null){
+	function tf_idf($text = null, $id_doc = null){
 		// foreach ($preprocess[0]['data_id_sentence'] as $key => $value) {
 						// 	echo $a.")"; 
 						// 	echo $value;
@@ -241,7 +270,7 @@ class Documents extends CI_Controller {
 						// 	$a++;
 						// }
 		$text_list_word = [];
-		foreach ($preprocess[0]['preprocessing_sentences'] as $key => $value) {
+		foreach ($text[0]['preprocessing_sentences'] as $key => $value) {
 			$text_list_word = array_merge($text_list_word, $value);
 		}
 		$text_list_word = array_unique($text_list_word);
@@ -249,7 +278,7 @@ class Documents extends CI_Controller {
 		$matrix_tf = [];
 		foreach ($text_list_word as $key_word => $word) {
 
-			foreach ($preprocess[0]['preprocessing_sentences'] as $key_text => $value_text) {
+			foreach ($text[0]['preprocessing_sentences'] as $key_text => $value_text) {
 				$count_word = 0;
 				foreach ($value_text as $k => $v) {
 					if ($word == $v) {
@@ -275,7 +304,7 @@ class Documents extends CI_Controller {
 		$text_dperdf = [];
 		$text_idf = [];
 		$text_idfplus1 = [];
-		$word_count = count($preprocess[0]['preprocessing_sentences']);
+		$word_count = count($text[0]['preprocessing_sentences']);
 		foreach ($text_df as $key => $value) {
 			$dperdf = $word_count / $value;
 			$text_dperdf[$key] = $dperdf;
@@ -295,14 +324,119 @@ class Documents extends CI_Controller {
 
 	}
 
-	function svd(){
+	function lsa($matrix_tfidf, $id_doc = null){
+		
+		$errorlevel = error_reporting();
+        error_reporting($errorlevel & ~E_NOTICE);
 
+        $this->load->library("singularvaluedecomposition");		
+		$svd = $this->singularvaluedecomposition->SVD($matrix_tfidf);
+
+		// $m = count($matrix_tfidf);
+  //       $n = count($matrix_tfidf[0]);
+
+		// $matrix_Vt = $this->singularvaluedecomposition->matrixRound($svd['V']);
+		// $matrix_S  = $this->singularvaluedecomposition->matrixRound($svd['S']);
+
+		$matrix_Vt = $svd['V'];
+		$matrix_S  = $svd['S'];
+		// var_dump($matrix_Vt);
+		// var_dump($matrix_S);
+
+        $rows_matrix_Vt = count($matrix_Vt);
+        $cols_matrix_Vt = count($matrix_Vt[0]);
+        
+        $rows_matrix_S = count($matrix_S);
+        $cols_matrix_S = count($matrix_S[0]);
+        
+        if($cols_matrix_Vt == $rows_matrix_S){
+            for($i = 0; $i < $rows_matrix_Vt; $i++){
+                for($j = 0; $j < $cols_matrix_S; $j++){
+                    for($p = 0; $p < $cols_matrix_Vt; $p++){
+                        $matrix = $matrix_Vt[$i][$p] * $matrix_S[$p][$j];
+                        if($matrix >= 0){
+                        	$matrix_LSA[$i][$j] += sqrt($matrix);
+                        }else{
+                        	$matrix_LSA[$i][$j] += -sqrt(abs($matrix));
+                        }
+                    }
+                }
+            }
+        }
+
+        // var_dump($matrix_LSA);
+
+
+        $lsa_Length = [];
+
+        foreach ($matrix_LSA as $key => $value) {
+            foreach ($value as $k => $v) {
+            	$lsa_Length[$k] += $v;
+             }
+        }
+
+
+        return $lsa_Length;
 
 	}
 
-	function lsa(){
+	public function process($text, $casefolding = true, $filtering = true, $stemming = true, $tokenizing = true, $stopword = true)
+    {
+        // $ret = [];
+        // $file_stopword = "assets/stopword/stopword.txt";
+        // $GLOBALS['stopwords'] = explode("\n", file_get_contents($file_stopword));
 
-	}
+        $stopwords_removal = [] ;
+
+    	foreach ($this->db->select('stopword')->get('stopword_list')->result() as $key => $value) {
+    		$stopwords_removal[$key] = $value->stopword;
+    	}
+
+    	$GLOBALS['stopwords'] = $stopwords_removal;
+
+        if ($casefolding) {
+            $text = strtolower($text);
+        }
+
+        if ($filtering) {
+            $text = preg_replace("/[^a-zA-Z\s- .]/", "", $text);
+        }
+        
+        $stemmerFactory = new \Sastrawi\Stemmer\StemmerFactory();
+        $stemmer  = $stemmerFactory->createStemmer();
+
+        if ($casefolding && $stemming) {
+            $text = $stemmer->stem($text);
+        }
+
+        // echo $text_segment_stem;
+        // echo "<br>";
+
+        if ($tokenizing) {
+        	$text = explode(" ", $text);
+        }
+
+        // var_dump($text_tokenization);
+
+        if ($stopword) {
+            $text = array_filter($text, function ($key) {
+                return !in_array($key, $GLOBALS['stopwords']);
+            });
+        }
+
+        // var_dump($text_stopwordremove);
+
+
+  		//  $array_preprocess[] = [
+		// 	'casefolding' =>  $text_lower,
+		// 	'filter' => $text_filtered,
+		// 	'stemming' => $text_segment_stem,
+		// 	'tokenizing' => $text_tokenization,
+		// 	'stopword' => $text_stopwordremove
+		// ];
+
+        return $text;
+    }
 
 	// public function go()
 	// {

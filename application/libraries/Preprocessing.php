@@ -7,7 +7,7 @@ class Preprocessing
     public function process($text, $stopword = true, $lower = true, $filter = true)
     {
         $ret = [];
-        $file_stopword = "assets/stopword/stopword.txt";
+        $file_stopword = "application/stopword/stopword.txt";
         $GLOBALS['stopwords'] = explode("\n", file_get_contents($file_stopword));
 
         if ($lower) {
