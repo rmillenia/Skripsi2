@@ -37,6 +37,7 @@ class Documents extends CI_Controller {
               // print_r($this->upload->data());
 			$insert = $this->db->insert('documents', $data_doc);
 			$id_doc = $this->db->insert_id();
+			// var_dump($id_doc);
 			$this->pdf($file_name, $id_doc);
              // print uploaded file data
 		}
@@ -128,9 +129,10 @@ class Documents extends CI_Controller {
 		        	$sentences 		= $this->paragraph_to_sentences($text, $id_doc);
 		        	$preprocess 	= $this->pre_processing($sentences, $id_doc);
 		        	$tfidf 			= $this->tf_idf($preprocess, $id_doc);
-		        	// var_dump($tfidf);
-		        	$method 		= $this->lsa($tfidf, $id_doc);
-		        	var_dump($method);
+		        	$id_sentences	= $preprocess[0]['id_sentences'];
+		        	// var_dump($id_sentences);
+		        	$method 		= $this->lsa($tfidf, $id_sentences, $id_doc);
+		        	// var_dump($method);
 		        	// var_dump($preprocess['0']['preprocessing_sentences']);
 		        	
 
@@ -222,10 +224,10 @@ class Documents extends CI_Controller {
 
 	function pre_processing($text = null, $id_doc = null){
 		// $this->load->library('preprocessing');
-		$data_id_sentence = [];
+		$id_sentences = [];
 		$casefolding = [];
 		foreach ($text as $key => $value) {
-			$data_id_sentence[$key] = $value->id_sentence;
+			$id_sentences[$key] = $value->id_sentence;
 			$casefolding[$key] = $this->process($value->sentence,true,false,false,false,false);
 		}
  
@@ -250,7 +252,7 @@ class Documents extends CI_Controller {
 		}
 
 		$array_preprocess_result[] = [
-			'data_id_sentence' =>  $data_id_sentence,
+			'id_sentences' =>  $id_sentences,
 			'casefolding_sentence' => $casefolding,
 			'filtering_sentence'=> $filtering,
 			'stemming_sentence' => $stemming,
@@ -324,7 +326,9 @@ class Documents extends CI_Controller {
 
 	}
 
-	function lsa($matrix_tfidf, $id_doc = null){
+	function lsa($matrix_tfidf = null, $id_sentences = null, $id_doc = null){
+
+		var_dump($id_sentences);
 		
 		$errorlevel = error_reporting();
         error_reporting($errorlevel & ~E_NOTICE);
@@ -372,11 +376,22 @@ class Documents extends CI_Controller {
         foreach ($matrix_LSA as $key => $value) {
             foreach ($value as $k => $v) {
             	$lsa_Length[$k] += $v;
-             }
+            }
+
         }
 
+        // var_dump($id_sentences);
 
-        return $lsa_Length;
+        foreach ($lsa_Length as $key => $value) {
+        	$data = array(
+		        	'f1' => $value
+		    );
+
+        	$this->db->where('id_sentence', $id_sentences[$key]);
+		    $this->db->update('sentence', $data);
+        }
+
+        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();;
 
 	}
 
@@ -399,7 +414,7 @@ class Documents extends CI_Controller {
         }
 
         if ($filtering) {
-            $text = preg_replace("/[^a-zA-Z\s- .]/", "", $text);
+            $text = preg_replace("/[^a-zA-Z0-9\s- .]/", "", $text);
         }
         
         $stemmerFactory = new \Sastrawi\Stemmer\StemmerFactory();
