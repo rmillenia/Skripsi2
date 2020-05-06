@@ -44,7 +44,7 @@
 
                                                 <input type="file" name="file" class="dropify" id="pdf-file" accept="application/pdf" style="position: relative;height: 150px !important">
                                                 <br>
-                                                <input type="submit" class="btn btn-primary float-right" name="upload" value="Upload">
+                                                <input type="submit" class="btn btn-primary float-right" name="upload" value="Upload and Summarize">
                                         </div>
                                     </div>
                                     </form>

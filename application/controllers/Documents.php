@@ -131,7 +131,30 @@ class Documents extends CI_Controller {
 		        	$tfidf 			= $this->tf_idf($preprocess, $id_doc);
 		        	$id_sentences	= $preprocess[0]['id_sentences'];
 		        	// var_dump($id_sentences);
-		        	$method 		= $this->lsa($tfidf, $id_sentences, $id_doc);
+		        	$method_lsa 		= $this->lsa($tfidf, $id_sentences, $id_doc);
+		        	$feature_numeric    = $this->feature_contain_numeric($sentences, $id_doc);
+
+		        	$all_sentences = $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
+
+		        	$bobot_total = [];
+
+		        	foreach ($all_sentences as $key => $value) {
+		        		$f1 = $value->f1;
+		        		$f2 = $value->f2;
+		        		$bobot_total[$key] = $f1+$f2;
+
+		        		$data = array(
+		        				'bobot' => $bobot_total[$key]
+		       					);
+
+		        		$this->db->where('id_sentence', $id_sentences[$key]);
+		    			$this->db->update('sentence', $data);
+
+		        	}
+
+		        	var_dump($bobot_total);
+
+
 		        	// var_dump($method);
 		        	// var_dump($preprocess['0']['preprocessing_sentences']);
 		        	
@@ -328,7 +351,7 @@ class Documents extends CI_Controller {
 
 	function lsa($matrix_tfidf = null, $id_sentences = null, $id_doc = null){
 
-		var_dump($id_sentences);
+		// var_dump($id_sentences);
 		
 		$errorlevel = error_reporting();
         error_reporting($errorlevel & ~E_NOTICE);
@@ -391,9 +414,48 @@ class Documents extends CI_Controller {
 		    $this->db->update('sentence', $data);
         }
 
-        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();;
+        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
 
 	}
+
+	public function feature_contain_numeric($text = null, $id_doc = null){
+		
+		$tokenizing = [];
+		$id_sentences = [];
+		foreach ($text as $key => $value) {
+			$id_sentences[$key] = $value->id_sentence;
+			$tokenizing[$key] = $this->process($value->sentence,false,false,false,true,false);
+		}
+
+		$feature_numeric = [];
+        foreach ($tokenizing as $key => $value) {
+            $numeric_amount = 0;
+            foreach ($value as $k => $v) {
+                if (is_numeric(preg_replace("/[^a-zA-Z0-9\s .]/", "", $v))) {
+                    $numeric_amount++;
+                }
+            }
+            $feature_numeric[$key] = $numeric_amount / count($value);
+
+            $data = array(
+		        	'f2' => $feature_numeric[$key]
+		    );
+
+            $this->db->where('id_sentence', $id_sentences[$key]);
+		    $this->db->update('sentence', $data);
+        }
+
+
+
+        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
+	}
+
+	public function bobot_total($text = null, $id_doc = null){
+		
+	}
+
+
+
 
 	public function process($text, $casefolding = true, $filtering = true, $stemming = true, $tokenizing = true, $stopword = true)
     {
