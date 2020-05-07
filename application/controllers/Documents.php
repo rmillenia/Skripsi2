@@ -38,7 +38,9 @@ class Documents extends CI_Controller {
 			$insert = $this->db->insert('documents', $data_doc);
 			$id_doc = $this->db->insert_id();
 			// var_dump($id_doc);
-			$this->pdf($file_name, $id_doc);
+			
+
+			echo json_decode($this->pdf($file_name, $id_doc));
              // print uploaded file data
 		}
 	}
@@ -113,8 +115,7 @@ class Documents extends CI_Controller {
 			        // Set the boundaries of errors you can accept
 			        // E.g., we reject the change if there are 30 or more $no_spacing_error or 150 or more $excessive_spacing_error issues
 		        if ($no_spacing_error >= 30 || $excessive_spacing_error >= 150) {
-		        	echo "Too many formatting issues<br />";
-		        	echo $text;
+		        	$result = "Too many formatting issues<br />";
 
 		        } else {
 			        	// echo "Success!<br />";
@@ -152,9 +153,7 @@ class Documents extends CI_Controller {
 
 		        	}
 
-		        	var_dump($bobot_total);
-
-
+		        	$result = $bobot_total;
 		        	// var_dump($method);
 		        	// var_dump($preprocess['0']['preprocessing_sentences']);
 		        	
@@ -189,11 +188,13 @@ class Documents extends CI_Controller {
 		        /**************************/
 
 		    } else {
-		    	echo "No text extracted from PDF.";
+		    	$result = "No text extracted from PDF.";
 		    }
 		} else {
-			echo "parseFile fns failed. Not a PDF.";
+			$result = "parseFile fns failed. Not a PDF.";
 		}
+
+		return $result;
 	}
 
 	// Common function

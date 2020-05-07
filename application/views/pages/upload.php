@@ -6,6 +6,8 @@
         <?php $this->load->view('elements/header2') ?>
         <?php $this->load->view('elements/sidebar') ?>
 
+        <div id="loading" class="loading" style="display: none">Loading&#8230;</div>
+
         <div class="main-panel">
             <div class="content">
                 <div class="page-inner">
@@ -35,18 +37,18 @@
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <form method="post" action="<?= base_url('Documents/upload'); ?>" enctype="multipart/form-data">
+                                    <form method="post" id="uploadPDF" action="<?= base_url('Documents/upload'); ?>" enctype="multipart/form-data">
                                         <?php if (!empty($error)){ echo $error;}?>
-                                    <div class="page-title">Preview</div>
-                                    <div class="row" style="padding-left: 10px">
-                                        <canvas class="col-md-2" id="pdf-preview" style="border: 2px solid #E5E5E5;border-style: dashed; padding-left: 12px;"></canvas>
-                                        <div class="col-md-10">
+                                        <div class="page-title">Preview</div>
+                                        <div class="row" style="padding-left: 10px">
+                                            <canvas class="col-md-2" id="pdf-preview" style="border: 2px solid #E5E5E5;border-style: dashed; padding-left: 12px;"></canvas>
+                                            <div class="col-md-10">
 
                                                 <input type="file" name="file" class="dropify" id="pdf-file" accept="application/pdf" style="position: relative;height: 150px !important">
                                                 <br>
                                                 <input type="submit" class="btn btn-primary float-right" name="upload" value="Upload and Summarize">
+                                            </div>
                                         </div>
-                                    </div>
                                     </form>
                                 </div>
                             </div>
@@ -60,6 +62,17 @@
 <?php $this->load->view('elements/footer') ?>
 
 <script type="text/javascript">
+
+    var kompresi  = 0;
+
+    var _PDF_DOC;
+
+    // PDF.JS renders PDF in a <canvas> element
+    var _CANVAS = document.querySelector('#pdf-preview');
+
+    // will hold object url of chosen PDF
+    var _OBJECT_URL;
+
     $(document).ready(function(){
         $('.dropify').dropify({
             messages : {
@@ -69,93 +82,157 @@
                 error : 'error'
             }
         });
-    });
-
-var _PDF_DOC;
-
-// PDF.JS renders PDF in a <canvas> element
-var _CANVAS = document.querySelector('#pdf-preview');
-
-// will hold object url of chosen PDF
-var _OBJECT_URL;
-
-// load the PDF
-function showPDF(pdf_url) {
-    PDFJS.getDocument({ url: pdf_url }).then(function(pdf_doc) {
-        _PDF_DOC = pdf_doc;
-
-        // show the first page of PDF
-        showPage(1);
-
-        // destroy previous object url
-        URL.revokeObjectURL(_OBJECT_URL);
-    }).catch(function(error) {
-        // error reason
-        alert(error.message);
-    });;
-}
-
-// show page of PDF
-function showPage(page_no) {
-    _PDF_DOC.getPage(page_no).then(function(page) {
-        // set the scale of viewport
-        var scale_required = _CANVAS.width / page.getViewport(1).width;
-
-        // get viewport of the page at required scale
-        var viewport = page.getViewport(scale_required);
-
-        // set canvas height
-        _CANVAS.height = viewport.height;
-
-        var renderContext = {
-            canvasContext: _CANVAS.getContext('2d'),
-            viewport: viewport
-        };
-        
-        // render the page contents in the canvas
-        page.render(renderContext).then(function() {
-            document.querySelector("#pdf-preview").style.display = 'inline-block';
+        $('form#uploadPDF').submit(function(e){
+            e.preventDefault();
+            var formData = new FormData(this);
+            var url = $(this).attr('action');
+            if ($('#pdf-file')[0].files[0] != null){
+                swal({
+                    title: 'Pilih Tingkat Kompresi Panjang Ringkasan',
+                    closeOnClickOutside: false,
+                    buttons: {
+                        one: {
+                          text: "25 %",
+                          value: 1
+                      },
+                      two: {
+                          text: "50 %",
+                          value: 2
+                      },
+                      three: {
+                          text: "75 %",
+                          value: 3
+                      }
+                  }
+                }).then( value => {
+                switch (value) {                  
+                    case 1:
+                    kompresi = 0.25;
+                    break;
+                    case 2:
+                    kompresi = 0.50;
+                    break;
+                    case 3:
+                    kompresi = 0.75;
+                    break;
+                }
+                }).then( function () {       
+                    $.ajax({
+                        url: url,
+                        type: 'post',
+                        data: formData,
+                        beforeSend: function() {
+                            // setting a timeout
+                           $("#loading").css('display','block');
+                        },
+                        success: function(data) {
+                            $("#loading").css('display','none');
+                            swal({
+                                title: "Upload Berhasil",
+                                type:"success",
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        },
+                        cache : false,
+                        contentType : false,
+                        processData : false,
+                        error: function(data) {
+                            swal(data.responseText);
+                        }         
+                    });
+                });
+            }else{
+                swal({
+                    icon: 'error',
+                    title: 'Oops',
+                    text: 'No File Uploaded',
+                    timer: 2000,
+                    buttons: false
+                });
+            };
         });
     });
-}
 
-/* showing upload file dialog */
-// document.querySelector("#upload-dialog").addEventListener('click', function() {
-//     document.querySelector("#pdf-file").click();
-// });
+    // load the PDF
+    function showPDF(pdf_url) {
+        PDFJS.getDocument({ url: pdf_url }).then(function(pdf_doc) {
+            _PDF_DOC = pdf_doc;
 
-/* when users selects a file */
-document.querySelector("#pdf-file").addEventListener('change', function() {
-    // user selected PDF
-    var file = this.files[0];
+            // show the first page of PDF
+            showPage(1);
 
-    // allowed MIME types
-    var mime_types = [ 'application/pdf' ];
-    
-    // validate whether PDF
-    if(mime_types.indexOf(file.type) == -1) {
-        alert('Error : Incorrect file type');
-        return;
+            // destroy previous object url
+            URL.revokeObjectURL(_OBJECT_URL);
+        }).catch(function(error) {
+            // error reason
+            alert(error.message);
+        });;
     }
 
-    // validate file size
-    if(file.size > 10*1024*1024) {
-        alert('Error : Exceeded size 10MB');
-        return;
+    // show page of PDF
+    function showPage(page_no) {
+        _PDF_DOC.getPage(page_no).then(function(page) {
+            // set the scale of viewport
+            var scale_required = _CANVAS.width / page.getViewport(1).width;
+
+            // get viewport of the page at required scale
+            var viewport = page.getViewport(scale_required);
+
+            // set canvas height
+            _CANVAS.height = viewport.height;
+
+            var renderContext = {
+                canvasContext: _CANVAS.getContext('2d'),
+                viewport: viewport
+            };
+            
+            // render the page contents in the canvas
+            page.render(renderContext).then(function() {
+                document.querySelector("#pdf-preview").style.display = 'inline-block';
+            });
+        });
     }
 
-    // validation is successful
+    /* showing upload file dialog */
+    // document.querySelector("#upload-dialog").addEventListener('click', function() {
+    //     document.querySelector("#pdf-file").click();
+    // });
 
-    // hide upload dialog
-    // document.querySelector("#upload-dialog").style.display = 'none';
-    
-    // show the PDF preview loader
-    // object url of PDF 
-    _OBJECT_URL = URL.createObjectURL(file)
+    /* when users selects a file */
+    document.querySelector("#pdf-file").addEventListener('change', function() {
+        // user selected PDF
+        var file = this.files[0];
 
-    // send the object url of the pdf to the PDF preview function
-    showPDF(_OBJECT_URL);
-});
+        // allowed MIME types
+        var mime_types = [ 'application/pdf' ];
+        
+        // validate whether PDF
+        if(mime_types.indexOf(file.type) == -1) {
+            alert('Error : Incorrect file type');
+            return;
+        }
+
+        // validate file size
+        if(file.size > 10*1024*1024) {
+            alert('Error : Exceeded size 10MB');
+            return;
+        }
+
+        // validation is successful
+
+        // hide upload dialog
+        // document.querySelector("#upload-dialog").style.display = 'none';
+        
+        // show the PDF preview loader
+        // object url of PDF 
+        _OBJECT_URL = URL.createObjectURL(file)
+
+        // send the object url of the pdf to the PDF preview function
+        showPDF(_OBJECT_URL);
+    });
+
+
 </script>
 
 </html>

@@ -19,6 +19,7 @@
 	<!-- CSS Files -->
 	<link rel="stylesheet" href="<?= base_url('assets/css/bootstrap.min.css')?>">
 	<link rel="stylesheet" href="<?= base_url('assets/css/atlantis.min.css')?>">
+	<link rel="stylesheet" href="<?= base_url('assets/css/style.css')?>">
 	<link href="<?= base_url('assets/dropify-master/dist/css/dropify.min.css')?>" rel="stylesheet"/>
 
 	<style type="text/css">
