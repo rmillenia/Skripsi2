@@ -6,7 +6,7 @@
         <?php $this->load->view('elements/header2') ?>
         <?php $this->load->view('elements/sidebar') ?>
 
-        <div id="loading" class="loading" style="display: none">Loading&#8230;</div>
+        <div id="loading" class="loading" style="display: none;">Loading&#8230;</div>
 
         <div class="main-panel">
             <div class="content">
@@ -54,16 +54,56 @@
                             </div>
                         </div>
                     </div>
+                    <div id="summary" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="page-title">Result</div>
+                                        <div id="kompresi">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <h3>Tingkat Kompresi Ringkasan :</h3>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <select name="kompresiSelect" id="kompresiSelect" class="form-control" style="padding: .3rem 1rem !important">
+                                                      <option value="0.25">25 %</option>
+                                                      <option value="0.5">50 %</option>
+                                                      <option value="0.75">75 %</option>
+                                                  </select>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="row">
+                                        <div class="col-md-6">
+                                            <h4><b>Before</b></h4>
+                                            <div id="beforeSummary" class="text-justify">
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4><b>After</b></h4>
+                                            <div id="afterSummary" class="text-justify">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </body>
 <?php $this->load->view('elements/footer') ?>
 
 <script type="text/javascript">
 
     var kompresi  = 0;
+    var id = 0;
 
     var _PDF_DOC;
 
@@ -104,7 +144,7 @@
                           value: 3
                       }
                   }
-                }).then( value => {
+              }).then( value => {
                 switch (value) {                  
                     case 1:
                     kompresi = 0.25;
@@ -115,24 +155,31 @@
                     case 3:
                     kompresi = 0.75;
                     break;
-                }
-                }).then( function () {       
-                    $.ajax({
-                        url: url,
-                        type: 'post',
-                        data: formData,
-                        beforeSend: function() {
+                };
+                formData.append("kompresi", kompresi);
+            }).then( function () {     
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: formData,
+                    beforeSend: function() {
                             // setting a timeout
-                           $("#loading").css('display','block');
+                            $("#loading").css('display','block');
                         },
                         success: function(data) {
                             $("#loading").css('display','none');
-                            swal({
-                                title: "Upload Berhasil",
-                                type:"success",
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
+                            $("#summary").css('display','inline');
+                            id = $.parseJSON(data);
+                            showSummary(id,kompresi);
+                            showDocuments(id);
+                            $("#kompresiSelect").val(kompresi);
+                            // $("html,#summary").animate({ scrollTop:$('#summary').prop("scrollHeight"))}, "slow");
+                            // var $content = $("#summary");
+                            // $content[0].scrollTop = $content[0].scrollHeight;
+                            $('html, body').animate({
+                                scrollTop: $("#summary").offset().top
+                            }, 2000);
+
                         },
                         cache : false,
                         contentType : false,
@@ -152,7 +199,71 @@
                 });
             };
         });
+
+        $( '#kompresiSelect').on( 'change', function (i) {
+            var kompresi = $(this).val();
+
+            showSummary(id,kompresi);
+        });
+
+        $('.readmore').on( 'click', function (i) {
+            $(this).next('.hidden').slideDown(750);
+        });
+
+
     });
+
+    function showSummary(id,kompresi){
+        $.ajax({
+            url: "<?= base_url('Documents/getSummaryDocuments'); ?>",
+            type: 'post',
+            data: {id: id, kompresi: kompresi},
+            success: function(data) {
+                // alert(data.length);
+                var result  = $.parseJSON(data);                    
+                // alert(JSON.stringify(result));
+                $('#afterSummary').empty();
+                for (var i=0;i<result.data.length;++i)
+                {
+                    $('#afterSummary').append(result.data[i].sentence+".<br>");
+                   // alert(data[i].sentence);
+               }
+           }
+       })
+    }
+
+    function showDocuments(id){
+        $.ajax({
+            url: "<?= base_url('Documents/getSentenceDocuments'); ?>",
+            type: 'post',
+            data: {id: id},
+            success: function(data) {
+                // var json = $.parseJSON(data);
+                // alert(data);
+                var result  = $.parseJSON(data);
+                // alert(JSON.stringify(result));
+                for (var i=0;i<result.data.length;++i)
+                {
+                    $('#beforeSummary').append(result.data[i].sentence+".<br>");
+                    // alert(data[i].sentence);
+                }
+                showReadMore();
+            }
+        })
+    }
+
+    // function showReadMore(){
+    //     var text = $('#beforeSummary').text();
+    //     var max  = 250;
+    //     if(text.length > max){
+    //         var begin = text.substr(0,max);
+    //         var end = text.substr(max);
+
+    //         $('#beforeSummary').html(begin)
+    //             .append($('<a class="readmore"/>').attr('href', '#').html('read more...'))
+    //             .append($('<div class="hidden" />').html(end));       
+    //     }
+    //  }
 
     // load the PDF
     function showPDF(pdf_url) {
@@ -169,6 +280,7 @@
             alert(error.message);
         });;
     }
+
 
     // show page of PDF
     function showPage(page_no) {

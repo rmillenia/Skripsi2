@@ -59,9 +59,23 @@
 							<h4 class="text-section">Components</h4>
 						</li>
 						<li class="nav-item">
+							<a href="<?= base_url('Stopword') ?>" class="collapsed">
+								<i class="fas fa-th-list"></i>
+								<p>Stopword</p>
+							</a>
+							<!-- <li class="nav-item">
+							<a href="widgets.html">
+								<i class="fas fa-desktop"></i>
+								<p>Widgets</p>
+								<span class="badge badge-success">4</span>
+							</a>
+						</li> -->
+						</li>
+						<li class="nav-item">
 							<a data-toggle="collapse" href="#base" class="collapsed" aria-expanded="false">
 								<i class="fas fa-layer-group"></i>
 								<p>Documents</p>
+								<span class="caret"></span>
 							</a>
 							<div class="collapse" id="base">
 								<ul class="nav nav-collapse">
@@ -78,13 +92,13 @@
 								</ul>
 							</div>
 						</li>
-						<li class="nav-item">
+						<!-- <li class="nav-item">
 							<a data-toggle="collapse" href="#sidebarLayouts">
 								<i class="fas fa-th-list"></i>
 								<p>Processing</p>
 								<span class="caret"></span>
-							</a>
-							<div class="collapse" id="sidebarLayouts">
+							</a> -->
+							<!-- <div class="collapse" id="sidebarLayouts">
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="sidebar-style-1.html">
@@ -113,14 +127,14 @@
 									</li>
 								</ul>
 							</div>
-						</li>
+						</li> -->
 						<li class="nav-item">
-							<a data-toggle="collapse" href="#forms">
+							<a href="<?= base_url('Result') ?>" class="collapsed">
 								<i class="fas fa-pen-square"></i>
 								<p>Summarize Result</p>
-								<span class="caret"></span>
+								<!-- <span class="caret"></span> -->
 							</a>
-							<div class="collapse" id="forms">
+							<!-- <div class="collapse" id="forms">
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="forms/forms.html">
@@ -128,7 +142,7 @@
 										</a>
 									</li>
 								</ul>
-							</div>
+							</div> -->
 						</li>
 						<!-- <li class="nav-item">
 							<a data-toggle="collapse" href="#tables">

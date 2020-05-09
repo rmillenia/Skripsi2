@@ -20,23 +20,43 @@ class Result extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->load->view('dashboard');
+		$this->load->view('pages/result');
 	}
 
-	public function go()
-	{
-		$parser = new \Smalot\PdfParser\Parser();
-        $pdf    = $parser->parseFile(base_url('assets/uploads/news3.pdf'));
-
-        $text = $pdf->getText();  
-
-        $afterString = 'PENDAHULUAN';
-        $beforeString = 'II.';
-
-		$text = substr($text, strpos($text, $afterString) + strlen($afterString));    
-        $text = strstr($text, $beforeString, true);
-
-
-        echo $text;
+	public function getResult(){
+		$data['data'] = $this->db->order_by('id', 'asc')->get('documents')->result();
+		echo json_encode($data);
 	}
+
+	public function getSummaryResult(){
+		$id = $this->input->post('id');
+		$kompresi = $this->input->post('kompresi');
+
+		$countSentence = count($this->db->where('fk_documents', $id)->get('sentence')->result());
+		$sentenceSummary = round($countSentence * $kompresi);
+
+		$result['data'] = $this->db->query('SELECT id_sentence,sentence FROM sentence
+				    JOIN 
+				    (
+				        SELECT id_sentence as id2
+				        FROM sentence 
+				        WHERE fk_documents = 21
+				        ORDER BY bobot desc LIMIT '.$sentenceSummary.'
+				    ) d
+				    ON sentence.id_sentence
+				    IN (d.id2)
+				    ORDER BY sentence.id_sentence asc')->result();
+		
+		echo json_encode($result);
+	}
+
+	public function getSentence(){
+		$id = $this->input->post('id');
+		$result['data'] = $this->db->select('id_sentence,sentence')->where('fk_documents', $id)->get('sentence')->result();
+
+		echo json_encode($result);		
+	}
+
+
+	
 }

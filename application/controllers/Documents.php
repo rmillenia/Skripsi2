@@ -33,14 +33,17 @@ class Documents extends CI_Controller {
 			$upload_data = $this->upload->data(); //Returns array of containing all of the data related to the file you uploaded.
 			$file_name = $upload_data['file_name'];
 			$data_doc = array(
-				'file'	=> $file_name);
+				'file'		=> $file_name
+			);
               // print_r($this->upload->data());
 			$insert = $this->db->insert('documents', $data_doc);
 			$id_doc = $this->db->insert_id();
 			// var_dump($id_doc);
-			
 
-			echo json_decode($this->pdf($file_name, $id_doc));
+			$kompresi = $this->input->post('kompresi');
+			$this->pdf($file_name, $id_doc);
+			
+			echo json_encode($id_doc);
              // print uploaded file data
 		}
 	}
@@ -221,6 +224,64 @@ class Documents extends CI_Controller {
 		//     }
 		//     echo "<br>";
 		// }
+
+	public function process($text, $casefolding = true, $filtering = true, $stemming = true, $tokenizing = true, $stopword = true)
+    {
+        // $ret = [];
+        // $file_stopword = "assets/stopword/stopword.txt";
+        // $GLOBALS['stopwords'] = explode("\n", file_get_contents($file_stopword));
+
+        $stopwords_removal = array();
+
+    	foreach ($this->db->select('stopword')->get('stopword_list')->result() as $key => $value) {
+    		$stopwords_removal[$key] = $value->stopword;
+    	}
+
+    	$GLOBALS['stopwords'] = $stopwords_removal;
+
+        if ($casefolding) {
+            $text = strtolower($text);
+        }
+
+        if ($filtering) {
+            $text = preg_replace("/[^a-zA-Z0-9\s- .]/", "", $text);
+        }
+        
+        $stemmerFactory = new \Sastrawi\Stemmer\StemmerFactory();
+        $stemmer  = $stemmerFactory->createStemmer();
+
+        if ($casefolding && $stemming) {
+            $text = $stemmer->stem($text);
+        }
+
+        // echo $text_segment_stem;
+        // echo "<br>";
+
+        if ($tokenizing) {
+        	$text = explode(" ", $text);
+        }
+
+        // var_dump($text_tokenization);
+
+        if ($stopword) {
+            $text = array_filter($text, function ($key) {
+                return !in_array($key, $GLOBALS['stopwords']);
+            });
+        }
+
+        // var_dump($text_stopwordremove);
+
+
+  		//  $array_preprocess[] = [
+		// 	'casefolding' =>  $text_lower,
+		// 	'filter' => $text_filtered,
+		// 	'stemming' => $text_segment_stem,
+		// 	'tokenizing' => $text_tokenization,
+		// 	'stopword' => $text_stopwordremove
+		// ];
+
+        return $text;
+    }
 
 	function paragraph_to_sentences($text = null, $id_doc = null){
 
@@ -451,70 +512,126 @@ class Documents extends CI_Controller {
         return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
 	}
 
-	public function bobot_total($text = null, $id_doc = null){
+	public function getSummaryDocuments(){
+		$id = $this->input->post('id');
+		$kompresi = $this->input->post('kompresi');
+
+		$countSentence = count($this->db->where('fk_documents', $id)->get('sentence')->result());
+		$sentenceSummary = round($countSentence * $kompresi);
+
+		$result['data'] = $this->db->query('SELECT id_sentence,sentence FROM sentence
+				    JOIN 
+				    (
+				        SELECT id_sentence as id2
+				        FROM sentence 
+				        WHERE fk_documents = 21
+				        ORDER BY bobot desc LIMIT '.$sentenceSummary.'
+				    ) d
+				    ON sentence.id_sentence
+				    IN (d.id2)
+				    ORDER BY sentence.id_sentence asc')->result();
 		
+		echo json_encode($result);
+	}
+
+	public function getSentenceDocuments(){
+		$id = $this->input->post('id');
+		$result['data'] = $this->db->select('id_sentence,sentence')->where('fk_documents', $id)->get('sentence')->result();
+
+		echo json_encode($result);		
+	}
+
+	public function goProcess($id){
+		$data['ids'] = $id;
+
+		$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
+		$data['noPerkara'] = $this->db->select('no_perkara')->where('id', $id)->get('documents')->result_array();
+
+		$preprocess = $this->pre_processing($plain, $id);
+		$a = $this->tf_idf($preprocess, $id);
+
+		$data['count'] = 0;
+
+		foreach ($a as $key => $value) {
+			$data['count'] = count($value);
+			break;
+		}
+		$this->load->view('pages/process',$data);
+	}
+
+	public function getPreprocess($id){
+
+		$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
+		// $result['data'] = $this->db->select('id_sentence,sentence')->where('fk_documents', $id)->get('sentence')->result();
+
+		// var_dump($plain);
+
+		$preprocess = $this->pre_processing($plain, $id);
+		$prepro =  [];
+		$stopwords = [];
+
+		foreach ($preprocess[0]['preprocessing_sentences'] as $k => $v) {
+			// $stopwords[$k] = $v[$k];
+			$arr = implode(" ",$v);
+			$stopwords[$k] = explode(" ", $arr);			
+		}
+
+		foreach ($preprocess[0]['filtering_sentence'] as $key => $value) {
+			$prepro[$key]['plain']			= $plain[$key]->sentence;
+			$prepro[$key]['casefolding']	= $preprocess[0]['filtering_sentence'][$key];
+			$prepro[$key]['filtering']	= $preprocess[0]['filtering_sentence'][$key];
+			$prepro[$key]['stemming']	= $preprocess[0]['stemming_sentence'][$key];
+			$prepro[$key]['tokenizing']	= $preprocess[0]['tokenizing_sentence'][$key];
+			$prepro[$key]['stopwords']	= $stopwords[$key];
+		}
+
+		$result['data'] = $prepro;
+		
+		echo json_encode($result);
+	}
+
+	public function getTfidf($id){
+
+		$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
+		// $result['data'] = $this->db->select('id_sentence,sentence')->where('fk_documents', $id)->get('sentence')->result();
+
+		// var_dump($plain);
+
+		$preprocess = $this->pre_processing($plain, $id);
+		$result['data'] = $this->tf_idf($preprocess, $id);
+
+		// $a = [];
+
+
+		// foreach ($result['data'] as $k => $v) {
+		// 	// $stopwords[$k] = $v[$k];
+		// 	$arr = implode(" ",$v);
+		// 	$a[$k] = explode(" ", $arr);			
+		// }
+
+		// $result['data'] = $a;
+
+
+
+		// var_dump($result['count']);
+		
+		echo json_encode($result);
+	}
+
+	public function getMethod($id){
+
+		$result['data'] = $this->db->where('fk_documents', $id)->get('sentence')->result();	
+		echo json_encode($result);
 	}
 
 
 
 
-	public function process($text, $casefolding = true, $filtering = true, $stemming = true, $tokenizing = true, $stopword = true)
-    {
-        // $ret = [];
-        // $file_stopword = "assets/stopword/stopword.txt";
-        // $GLOBALS['stopwords'] = explode("\n", file_get_contents($file_stopword));
-
-        $stopwords_removal = [] ;
-
-    	foreach ($this->db->select('stopword')->get('stopword_list')->result() as $key => $value) {
-    		$stopwords_removal[$key] = $value->stopword;
-    	}
-
-    	$GLOBALS['stopwords'] = $stopwords_removal;
-
-        if ($casefolding) {
-            $text = strtolower($text);
-        }
-
-        if ($filtering) {
-            $text = preg_replace("/[^a-zA-Z0-9\s- .]/", "", $text);
-        }
-        
-        $stemmerFactory = new \Sastrawi\Stemmer\StemmerFactory();
-        $stemmer  = $stemmerFactory->createStemmer();
-
-        if ($casefolding && $stemming) {
-            $text = $stemmer->stem($text);
-        }
-
-        // echo $text_segment_stem;
-        // echo "<br>";
-
-        if ($tokenizing) {
-        	$text = explode(" ", $text);
-        }
-
-        // var_dump($text_tokenization);
-
-        if ($stopword) {
-            $text = array_filter($text, function ($key) {
-                return !in_array($key, $GLOBALS['stopwords']);
-            });
-        }
-
-        // var_dump($text_stopwordremove);
+	// public function bobot_total($text = null, $id_doc = null){
+		
+	// }
 
 
-  		//  $array_preprocess[] = [
-		// 	'casefolding' =>  $text_lower,
-		// 	'filter' => $text_filtered,
-		// 	'stemming' => $text_segment_stem,
-		// 	'tokenizing' => $text_tokenization,
-		// 	'stopword' => $text_stopwordremove
-		// ];
-
-        return $text;
-    }
 
 	// public function go()
 	// {

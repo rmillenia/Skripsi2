@@ -21,5 +21,7 @@
 	<link rel="stylesheet" href="<?= base_url('assets/css/atlantis.min.css')?>">
 	<link href="<?= base_url('assets/dropify-master/dist/css/dropify.min.css')?>" rel="stylesheet"/>
 
+	<style type="text/css"></style>
+
 </head>
 

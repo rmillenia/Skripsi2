@@ -1,3 +1,10 @@
+.truncate {
+  max-width:450px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .loading {
   position: fixed;
   z-index: 999;

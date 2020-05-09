@@ -39,3 +39,4 @@
 
 <script src="<?= base_url('assets/pdf-preview/pdf.js')?>"></script>
 <script src="<?= base_url('assets/pdf-preview/pdf.worker.js')?>"></script>
+<script src="<?= base_url('assets/js/plugin/readmore/readmore.min.js')?>"></script>
