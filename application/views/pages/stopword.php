@@ -126,7 +126,7 @@
 				"class": "text-center noExport",
 				"data": (data, type, row) => {
 					let ret = "";
-					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-times"></i></button>';
+					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times-circle"></i></button>';
 
 					return ret;
 				}
@@ -150,7 +150,7 @@
 						showConfirmButton: false
 					});	
 					$('#addRowModal').modal('hide');
-					table_stopword.ajax.reload();
+					table_stopword.ajax.reload(null,false);
 				},
 				cache : false,
 				contentType : false,
@@ -163,28 +163,47 @@
 	});
 
 	var deleteButton = (obj) => {
-		$.ajax({
-			url: "<?= base_url("Stopword/deleteList")?>",
-			type: "POST",
-			data: {
-				id: $(obj).data('id'),
-			},
-			success: function (data) {
-				swal({
-					title: "Success",
-					type:"success",
-					text: "Your data has been deleted",
-					timer: 2000,
-					showConfirmButton: false
-				});
-				table_stopword.ajax.reload();
-			},
-			error: function (data) {
-				swal(data.responseText);
-			}                    
-		})
+		swal({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			type: 'warning',
+			buttons:{
+				confirm: {
+					text : 'Yes, delete it!',
+					className : 'btn btn-success'
+				},
+				cancel: {
+					visible: true,
+					className: 'btn btn-danger'
+				}
+			}
+		}).then((Delete) => {
+			if (Delete) {
+				$.ajax({
+					url: "<?= base_url("Stopword/deleteList")?>",
+					type: "POST",
+					data: {
+						id: $(obj).data('id'),
+					},
+					success: function (data) {
+						swal({
+							title: "Success",
+							type:"success",
+							text: "Your data has been deleted",
+							timer: 2000,
+							showConfirmButton: false
+						});
+						table_stopword.ajax.reload(null,false);
+					},
+					error: function (data) {
+						swal(data.responseText);
+					}                    
+				})
+			}else{
+				swal.close();
+			}
+		});
 	}
-
 
 </script>
 </html>

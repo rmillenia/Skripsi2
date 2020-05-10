@@ -57,6 +57,12 @@ class Documents extends CI_Controller {
 		echo json_encode($data);
 	}
 
+	public function deleteDocuments(){
+		$no = $this->input->post('ids');
+		$data['data'] = $this->db->where_in('id', $no)->delete('documents');
+		echo json_encode($data);
+	}
+
 	// public function update_doc($id_doc = null){
 
 	// }
