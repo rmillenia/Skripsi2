@@ -41,7 +41,7 @@ class Result extends CI_Controller {
 				        SELECT id_sentence as id2
 				        FROM sentence 
 				        WHERE fk_documents = 21
-				        ORDER BY bobot desc LIMIT '.$sentenceSummary.'
+				        ORDER BY f1 desc LIMIT '.$sentenceSummary.'
 				    ) d
 				    ON sentence.id_sentence
 				    IN (d.id2)

@@ -141,7 +141,7 @@ class Documents extends CI_Controller {
 		        	$tfidf 			= $this->tf_idf($preprocess, $id_doc);
 		        	$id_sentences	= $preprocess[0]['id_sentences'];
 		        	// var_dump($id_sentences);
-		        	$method_lsa 		= $this->lsa($tfidf, $id_sentences, $id_doc);
+		        	$method_lsa 		= $this->lsa($tfidf[0]['matrix_tfidf'], $id_sentences, $id_doc);
 		        	$feature_numeric    = $this->feature_contain_numeric($sentences, $id_doc);
 
 		        	$all_sentences = $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
@@ -413,7 +413,14 @@ class Documents extends CI_Controller {
 			}
 		}
 
-		return $matrix_tfidf;
+		$array_martix[] = [
+			'matrix_tf' => $matrix_tf,
+			'text_idfplus1' =>  $text_idfplus1,
+			'matrix_tfidf' => $matrix_tfidf,
+			'text_list_word' => $text_list_word
+		];
+
+		return $array_martix;
 
 	}
 
@@ -556,9 +563,14 @@ class Documents extends CI_Controller {
 		$preprocess = $this->pre_processing($plain, $id);
 		$a = $this->tf_idf($preprocess, $id);
 
+		$data['matrix_tf'] = $a[0]['matrix_tf'];
+		$data['text_idfplus1'] = $a[0]['text_idfplus1'];
+		$data['matrix_tfidf'] = $a[0]['matrix_tfidf'];
+		$data['text_list_word'] = $a[0]['text_list_word'];
+
 		$data['count'] = 0;
 
-		foreach ($a as $key => $value) {
+		foreach ($a[0]['matrix_tf'] as $key => $value) {
 			$data['count'] = count($value);
 			break;
 		}
@@ -596,33 +608,34 @@ class Documents extends CI_Controller {
 		echo json_encode($result);
 	}
 
-	public function getTfidf($id){
+	// public function getTfidf($id){
 
-		$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
-		// $result['data'] = $this->db->select('id_sentence,sentence')->where('fk_documents', $id)->get('sentence')->result();
+	// 	$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
+	// 	// $result['data'] = $this->db->select('id_sentence,sentence')->where('fk_documents', $id)->get('sentence')->result();
 
-		// var_dump($plain);
+	// 	// var_dump($plain);
 
-		$preprocess = $this->pre_processing($plain, $id);
-		$result['data'] = $this->tf_idf($preprocess, $id);
+	// 	$preprocess = $this->pre_processing($plain, $id);
+	// 	$matrix = $this->tf_idf($preprocess, $id);
+	// 	$result['tfidf']
 
-		// $a = [];
-
-
-		// foreach ($result['data'] as $k => $v) {
-		// 	// $stopwords[$k] = $v[$k];
-		// 	$arr = implode(" ",$v);
-		// 	$a[$k] = explode(" ", $arr);			
-		// }
-
-		// $result['data'] = $a;
+	// 	// $a = [];
 
 
+	// 	// foreach ($result['data'] as $k => $v) {
+	// 	// 	// $stopwords[$k] = $v[$k];
+	// 	// 	$arr = implode(" ",$v);
+	// 	// 	$a[$k] = explode(" ", $arr);			
+	// 	// }
 
-		// var_dump($result['count']);
+	// 	// $result['data'] = $a;
+
+
+
+	// 	// var_dump($result['count']);
 		
-		echo json_encode($result);
-	}
+	// 	echo json_encode($result);
+	// }
 
 	public function getMethod($id){
 
