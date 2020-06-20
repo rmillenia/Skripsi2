@@ -91,6 +91,8 @@
                                                                 <th rowspan="2" class="text-center"> No </th>
                                                                 <th rowspan="2" class="text-center"> Kata - Penting </th>
                                                                 <th colspan="14" class="text-center"> TF </th>
+                                                                <th rowspan="2" class="text-center">DF</th>
+                                                                <th rowspan="2" class="text-center">IDF</th>
                                                                 <th rowspan="2" class="text-center">IDF + 1</th>
                                                             </tr>
                                                             <tr>
@@ -112,6 +114,8 @@
                                                                     <?= $matrix_tf[$key][$k]?>
                                                                 </td>
                                                                 <?php }?>
+                                                                <td><?=$text_df[$key];?></td>
+                                                                <td><?=$text_idf[$key];?></td>
                                                                 <td><?=$text_idfplus1[$key];?></td>
                                                             </tr>
                                                             <?php }?>

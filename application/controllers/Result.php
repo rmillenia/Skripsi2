@@ -40,7 +40,7 @@ class Result extends CI_Controller {
 				    (
 				        SELECT id_sentence as id2
 				        FROM sentence 
-				        WHERE fk_documents = 21
+				        WHERE fk_documents = '.$id.'
 				        ORDER BY f1 desc LIMIT '.$sentenceSummary.'
 				    ) d
 				    ON sentence.id_sentence

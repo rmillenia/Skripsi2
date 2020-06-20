@@ -247,7 +247,7 @@
                     $('#beforeSummary').append(result.data[i].sentence+".<br>");
                     // alert(data[i].sentence);
                 }
-                showReadMore();
+                // showReadMore();
             }
         })
     }

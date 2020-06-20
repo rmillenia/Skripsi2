@@ -12,7 +12,7 @@ class Documents extends CI_Controller {
 	{
 		$this->load->helper(array('form','url'));
         // set path to store uploaded files
-		$config['upload_path'] = './assets/uploads/';
+		$config['upload_path'] = './assets/uploads/originalDocument';
         // set allowed file types
 		$config['allowed_types'] = 'pdf';
         // set upload limit, set 0 for no limit
@@ -68,7 +68,7 @@ class Documents extends CI_Controller {
 	// }
 
 	public function pdf($file_name = null, $id_doc = null){
-		$server_file = base_url('assets/uploads/'.$file_name);
+		$server_file = base_url('assets/uploads/originalDocument/'.$file_name);
 
 		$parser = new \Smalot\PdfParser\Parser();
 		$pdf = $parser->parseFile($server_file);
@@ -105,7 +105,25 @@ class Documents extends CI_Controller {
 		        $afterNo = 'PENGADILAN';
 
 		        $noPerkara = substr($text, strpos($text, $beforeNo) + strlen($beforeNo)); 
-		        $noPerkara = strstr($noPerkara, $afterNo, true);   
+		        $noPerkara = strstr($noPerkara, $afterNo, true);
+
+		        $beforeTerdakwa = 'terdakwa';
+
+		        $terdakwa = substr($text, strpos($text, $beforeTerdakwa) + strlen($beforeTerdakwa)); 
+				$hasil = implode(" ", array_slice(explode(" ", $terdakwa), 1, 1));
+
+				// echo $hasil;
+
+				$beforePengadilan = 'PENGADILAN';
+		        $afterPengadilan = 'I. PENDAHULUAN';
+
+		        $pengadilan = substr($text, strpos($text, $beforePengadilan) + strlen($beforePengadilan)); 
+		        $pengadilan = strstr($pengadilan, $afterPengadilan, true);
+
+		        // echo $pengadilan;
+
+
+				// var_dump($hasil); 
 
 
 		        $afterString = 'PENDAHULUAN';
@@ -115,7 +133,9 @@ class Documents extends CI_Controller {
 		        $text = strstr($text, $beforeString, true);
 
 		        $data = array(
-		        	'no_perkara' => $noPerkara
+		        	'no_perkara' => $noPerkara,
+		        	'terdakwa'	 => $hasil,
+		        	'pengadilan' => 'PENGADILAN '.$pengadilan
 		        );
 
 		        $this->db->where('id', $id_doc);
@@ -416,9 +436,14 @@ class Documents extends CI_Controller {
 		$array_martix[] = [
 			'matrix_tf' => $matrix_tf,
 			'text_idfplus1' =>  $text_idfplus1,
+			'text_df' => $text_df,
+			'text_idf' => $text_idf,
 			'matrix_tfidf' => $matrix_tfidf,
 			'text_list_word' => $text_list_word
 		];
+
+		// var_dump($array_martix[0]['matrix_tfidf']);
+  //       exit();
 
 		return $array_martix;
 
@@ -440,34 +465,46 @@ class Documents extends CI_Controller {
 		// $matrix_Vt = $this->singularvaluedecomposition->matrixRound($svd['V']);
 		// $matrix_S  = $this->singularvaluedecomposition->matrixRound($svd['S']);
 
-		$matrix_Vt = $svd['V'];
-		$matrix_S  = $svd['S'];
+		$matrix_Vt = $this->singularvaluedecomposition->matrixRound($svd['V']);
+		$matrix_S  = $this->singularvaluedecomposition->matrixRound($svd['S']);
+
+
+
 		// var_dump($matrix_Vt);
+		// echo "<br><br>";
 		// var_dump($matrix_S);
+
+		// exit();
+
+
 
         $rows_matrix_Vt = count($matrix_Vt);
         $cols_matrix_Vt = count($matrix_Vt[0]);
         
         $rows_matrix_S = count($matrix_S);
         $cols_matrix_S = count($matrix_S[0]);
+
+  //       for($i = 0; $i < $rows_matrix_Vt; $i++){
+		// 	for($p = 0; $p < $cols_matrix_Vt; $p++){
+		// 		$rows_matrix_Vt[$i][$p] = 
+		// 	}
+		// }
         
         if($cols_matrix_Vt == $rows_matrix_S){
             for($i = 0; $i < $rows_matrix_Vt; $i++){
                 for($j = 0; $j < $cols_matrix_S; $j++){
                     for($p = 0; $p < $cols_matrix_Vt; $p++){
-                        $matrix = $matrix_Vt[$i][$p] * $matrix_S[$p][$j];
-                        if($matrix >= 0){
-                        	$matrix_LSA[$i][$j] += sqrt($matrix);
-                        }else{
-                        	$matrix_LSA[$i][$j] += -sqrt(abs($matrix));
-                        }
+                        $matrix_LSA[$i][$j] += $matrix_Vt[$i][$p] * $matrix_S[$p][$j];
+                        // if($matrix >= 0){
+                        // 	$matrix_LSA[$i][$j] = sqrt($matrix);
+                        // }else{
+                        // 	$matrix_LSA[$i][$j] = -sqrt(abs($matrix));
+                        // }
                     }
+                    // $matrix_LSA[$i][$j] = sqrt($matrix_LSA[$i][$j]);
                 }
             }
         }
-
-        // var_dump($matrix_LSA);
-
 
         $lsa_Length = [];
 
@@ -481,6 +518,11 @@ class Documents extends CI_Controller {
         // var_dump($id_sentences);
 
         foreach ($lsa_Length as $key => $value) {
+        	if($value >= 0){
+                    $value = sqrt($value);
+            }else{
+                    $value = -sqrt(abs($value));
+            }
         	$data = array(
 		        	'f1' => $value
 		    );
@@ -537,13 +579,12 @@ class Documents extends CI_Controller {
 				    (
 				        SELECT id_sentence as id2
 				        FROM sentence 
-				        WHERE fk_documents = 21
+				        WHERE fk_documents = '.$id.'
 				        ORDER BY bobot desc LIMIT '.$sentenceSummary.'
 				    ) d
 				    ON sentence.id_sentence
 				    IN (d.id2)
 				    ORDER BY sentence.id_sentence asc')->result();
-		
 		echo json_encode($result);
 	}
 
@@ -563,9 +604,11 @@ class Documents extends CI_Controller {
 		$preprocess = $this->pre_processing($plain, $id);
 		$a = $this->tf_idf($preprocess, $id);
 
-		$data['matrix_tf'] = $a[0]['matrix_tf'];
-		$data['text_idfplus1'] = $a[0]['text_idfplus1'];
-		$data['matrix_tfidf'] = $a[0]['matrix_tfidf'];
+		$data['matrix_tf'] 		= $a[0]['matrix_tf'];
+		$data['text_df'] 		= $a[0]['text_df'];
+		$data['text_idf'] 		= $a[0]['text_idf'];
+		$data['text_idfplus1'] 	= $a[0]['text_idfplus1'];
+		$data['matrix_tfidf'] 	= $a[0]['matrix_tfidf'];
 		$data['text_list_word'] = $a[0]['text_list_word'];
 
 		$data['count'] = 0;
@@ -608,6 +651,110 @@ class Documents extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	public function eigenValue(){
+
+		$errorlevel = error_reporting();
+        error_reporting($errorlevel & ~E_NOTICE);
+
+		$id = 1;
+		$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
+		$data['noPerkara'] = $this->db->select('no_perkara')->where('id', $id)->get('documents')->result_array();
+
+		$preprocess = $this->pre_processing($plain, $id);
+		$a = $this->tf_idf($preprocess, $id);
+		$tfidf = $a[0]['matrix_tfidf'];
+
+		// $m = count($matrix);
+  //       $n = count($matrix[0]);
+        
+  //       for($i = 0; $i < $m; $i++){
+  //           for($j = 0; $j < $n; $j++){
+  //               var_dump($tfidf[$i][$j]);
+  //           }
+
+  //           echo "<br>";
+  //       }
+
+		// $matrix_tfidf = [];
+		// foreach ($tfidf as $key => $value) {
+		// 	foreach ($value as $k => $v) {
+		// 		echo $tfidf[$key][$k]." ";
+		// 	}
+		// 	echo "<br>";
+		// }
+
+		// echo "<br>";
+		// echo "<br>";
+
+		foreach ($tfidf as $key => $value) {
+			foreach ($value as $k => $v) {
+				$tranposeTfidf[$k][$key] = $v;
+				// echo $tranpose[$k][$key]." ";
+			}
+			// echo "<br>";
+		}
+
+		// var_dump($tfidf);
+
+		// echo "<br>";
+		// echo "<br>";
+
+		// var_dump($tranposeTfidf);
+
+		$this->load->library("singularvaluedecomposition");		
+		$mmult = $this->singularvaluedecomposition->matrixMultiplication($tranposeTfidf,$tfidf);
+
+		var_dump($mmult);
+
+		foreach ($mmult as $key => $value) {
+			foreach ($value as $k => $v) {
+				if($key == $k)
+				echo $tfidf[$key][$k]." ";
+			}
+			echo "<br>";
+		}
+
+
+
+
+
+		// var_dump($tfidf);
+
+		// echo "<br>";
+
+		// var_dump($tranpose);
+
+        // // var_dump($m);
+        // // var_dump($n);
+        
+        // for($i = 0; $i < $m; $i++){
+        //     for($j = 0; $j < $n; $j++){
+        //         echo $tfidf[0][0];
+        //     }
+
+        //     echo "<br>";
+        // }
+
+
+
+        // var_dump($tfidf);
+
+  //       for($i=0;$i<$m;$i=$i++)
+  //       {
+  //       	for($j=0;$j<$n;$j=$j++)
+  //       	{
+  //       		// $a[$i][$j]=$tfidf[$j][$i]; //assigning the values of elements of each column to each row
+  //       		 echo $i;
+  //       		 echo $j;
+
+
+  //  			}
+   		
+  //  		echo "<br>"; //here this is creating a new line 
+		// }
+
+        // var_dump($matrixT);
+	}
 	// public function getTfidf($id){
 
 	// 	$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();
