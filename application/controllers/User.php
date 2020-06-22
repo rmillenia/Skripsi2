@@ -29,7 +29,7 @@ class User extends CI_Controller {
         $data['username']=$session_data['username'];
         $data['type']=$session_data['type'];
         $data['pic']=$session_data['pic'];
-		
+
 		$this->load->view('pages/user',$data);
 	}
 
@@ -51,18 +51,8 @@ class User extends CI_Controller {
 		echo json_encode($data);
 	}
 
-	// public function updateList(){
-	// 	$where = array('id' => $this->input->post('id'));
-	// 	$array = array(
-	// 			'stopword' => $this->input->post('stopword')
-	// 			);
-
-	// 	$data['data'] = $this->db->where($where)->update('stopword_list', $array);
-	// 	echo json_encode($data);
-	// }
-
-	public function updateList(){
-        $id = 1;
+	public function updateStatus(){
+        $id = $this->input->post('id');
 
 		$result = $this->db->get_where('users',array('id_user' => $id))->result();
 

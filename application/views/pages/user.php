@@ -253,7 +253,7 @@
 
 	var updateButton = (obj) => {
 		$.ajax({
-			url: "<?= base_url("User/updateList")?>",
+			url: "<?= base_url("User/updateStatus")?>",
 			type: "POST",
 			data: {
 				id: $(obj).data('id'),

@@ -47,15 +47,15 @@ class Stopword extends CI_Controller {
 		echo json_encode($data);
 	}
 
-	// public function updateList(){
-	// 	$where = array('id' => $this->input->post('id'));
-	// 	$array = array(
-	// 			'stopword' => $this->input->post('stopword')
-	// 			);
+	public function updateList(){
+		$where = array('id' => $this->input->post('id'));
+		$array = array(
+				'stopword' => $this->input->post('stopword')
+				);
 
-	// 	$data['data'] = $this->db->where($where)->update('stopword_list', $array);
-	// 	echo json_encode($data);
-	// }
+		$data['data'] = $this->db->where($where)->update('stopword_list', $array);
+		echo json_encode($data);
+	}
 
 	public function deleteList(){
 		$no = $this->input->post('id');

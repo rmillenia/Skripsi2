@@ -92,7 +92,7 @@
 										<div class="card-tools">
 											<ul class="nav nav-pills nav-secondary nav-pills-no-bd nav-sm" id="pills-tab" role="tablist">
 												<li class="nav-item">
-													<a class="nav-link active" id="nav" data-id="1" data-toggle="pill" role="tab" aria-selected="true">Week</a>
+													<a class="nav-link active" id="nav" data-id="1" data-toggle="pill" role="tab" aria-selected="true">Day</a>
 												</li>
 												<li class="nav-item">
 													<a class="nav-link" id="nav" data-id="2" data-toggle="pill" role="tab" aria-selected="false">Month</a>

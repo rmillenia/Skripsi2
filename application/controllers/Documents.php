@@ -117,7 +117,6 @@ class Documents extends CI_Controller {
 			if ($original_text != "") {
 		        $text = nl2br($original_text); // Paragraphs and line break formatting
 		        $text = $this->clean_ascii_characters($text); // Check special characters
-		        $text = str_replace(array("<br /> <br /> <br />", "<br> <br> <br>"), "<br /> <br />", $text); // Optional
 		        $text = addslashes($text); // Backslashes for single quotes     
 		        $text = stripslashes($text);
 		        $text = strip_tags($text);
