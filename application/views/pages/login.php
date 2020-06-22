@@ -14,26 +14,26 @@
 							<div class="card shadow">
 								<div class="card-title text-center" style="padding-top: 10px;">Welcome User</h4></div>
 								<div class="card-body">
-									<form method="post" id="inputReservation" accept-charset="utf-8" action="<?= site_url() ?>/User/addReservation">						
+									<form method="post" id="inputReservation" accept-charset="utf-8" action="<?= base_url() ?>/Home/cekLogin">						
 										<div class="form-group">
 												<div class="input-icon">
 													<span class="input-icon-addon">
-														<i class="fa fa-user"></i>
+														<i class="fas fa-user-circle"></i>
 													</span>
-													<input type="text" class="form-control" placeholder="Username">
+													<input type="text" id="username" name="username" class="form-control" placeholder="Username">
 												</div>
 											</div>
 										<div class="form-group">
 												<div class="input-icon">
 													<span class="input-icon-addon">
-														<i class="fa fa-lock"></i>
+														<i class="fas fa-lock"></i>
 													</span>
-													<input type="password" class="form-control" placeholder="Password">
+													<input type="password" id="password" name="password" class="form-control form-password" placeholder="Password">
 												</div>
 											</div>
 										<div class="form-check">
 											<label class="form-check-label">
-												<input class="form-check-input" type="checkbox" value="">
+												<input class="form-check-input form-checkbox" type="checkbox" value="">
 												<span class="form-check-sign">Show password</span>
 											</label>
 										</div>
@@ -53,4 +53,16 @@
 </div>
 </body>
 <?php $this->load->view('elements/footer') ?>
+
+<script type="text/javascript">
+	$(document).ready(function(){		
+		$('.form-checkbox').click(function(){
+			if($(this).is(':checked')){
+				$('.form-password').attr('type','text');
+			}else{
+				$('.form-password').attr('type','password');
+			}
+		});
+	});
+</script>
 </html>

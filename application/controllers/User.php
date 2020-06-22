@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Stopword extends CI_Controller {
+class User extends CI_Controller {
 
 	public function __construct(){
 		parent::__construct();
@@ -22,7 +22,7 @@ class Stopword extends CI_Controller {
             redirect('Home/login','refresh');
         }
 	}
-
+	
 	public function index()
 	{
 		$session_data=$this->session->userdata('logged_in');
@@ -30,20 +30,24 @@ class Stopword extends CI_Controller {
         $data['type']=$session_data['type'];
         $data['pic']=$session_data['pic'];
 		
-		$this->load->view('pages/stopword',$data);
+		$this->load->view('pages/user',$data);
 	}
 
 	public function getList(){
-		$data['data'] = $this->db->order_by('id', 'asc')->get('stopword_list')->result();
+		$data['data'] = $this->db->order_by('id_user', 'asc')->get('users')->result();
 		echo json_encode($data);
 	}
 
 	public function insertList(){
 		$array = array(
-				'stopword' => $this->input->post('stopword')
+				'username' => $this->input->post('username'),
+				'password' => md5($this->input->post('username')),
+				'fullname' => $this->input->post('fullname'),
+				'pic' => 'user-no-photo.png',
+				'type' => $this->input->post('type'),
+				'status' => 2
 				);
-
-		$data['data'] = $this->db->insert('stopword_list', $array);
+		$data['data'] = $this->db->insert('users', $array);
 		echo json_encode($data);
 	}
 
@@ -57,9 +61,37 @@ class Stopword extends CI_Controller {
 	// 	echo json_encode($data);
 	// }
 
-	public function deleteList(){
-		$no = $this->input->post('id');
-		$data['data'] = $this->db->where('id', $no)->delete('stopword_list');
+	public function updateList(){
+        $id = 1;
+
+		$result = $this->db->get_where('users',array('id_user' => $id))->result();
+
+		if($result[0]->status == 1){
+			$data = array(
+		        'status' => 2
+			);
+		}else{
+			$data = array(
+		        'status' => 1
+			);
+		}
+
+		$this->db->where('id_user', $id);
+		$this->db->update('users', $data);
+
+		echo json_encode($data);
+	}
+
+	public function resetPass(){
+		$id = $this->input->post('id');
+		$username = $this->input->post('username');
+
+		$data = array(
+		        'password' => md5($username)
+		);
+
+		$this->db->where('id_user', $id)->update('users',$data);
+
 		echo json_encode($data);
 	}
 

@@ -3,13 +3,41 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Documents extends CI_Controller {
 
+	public function __construct(){
+		parent::__construct();
+
+		if ($this->session->userdata('logged_in')) {
+            $session_data=$this->session->userdata('logged_in');
+            $data['username']=$session_data['username'];
+            $data['type']=$session_data['type'];
+            $current_controller = $this->router->fetch_class();
+            $this->load->library('Acl');
+            if (! $this->acl->is_public($current_controller)){
+                if (! $this->acl->is_allowed($current_controller, $data['type'])){
+                    echo "<script>alert('You Do not Have Permission to Access This'); </script>";
+                    redirect($_SERVER['HTTP_REFERER'],'refresh');
+                }
+            }
+        }else{
+            redirect('Home/login','refresh');
+        }
+	}
+
 	public function index()
 	{
-		$this->load->view('pages/upload');
+		$session_data=$this->session->userdata('logged_in');
+        $data['username']=$session_data['username'];
+        $data['type']=$session_data['type'];
+        $data['pic']=$session_data['pic'];
+
+		$this->load->view('pages/upload',$data);
 	}
 
 	public function upload()
 	{
+		$session_data=$this->session->userdata('logged_in');
+        $id_user = $session_data['id'];
+
 		$this->load->helper(array('form','url'));
         // set path to store uploaded files
 		$config['upload_path'] = './assets/uploads/originalDocument';
@@ -38,6 +66,13 @@ class Documents extends CI_Controller {
               // print_r($this->upload->data());
 			$insert = $this->db->insert('documents', $data_doc);
 			$id_doc = $this->db->insert_id();
+
+			$data_history = array(
+				'fk_document'		=> $id_doc,
+				'fk_user'		=> $id_user
+			);
+
+			$insert = $this->db->insert('history', $data_history);
 			// var_dump($id_doc);
 
 			$kompresi = $this->input->post('kompresi');
@@ -49,7 +84,12 @@ class Documents extends CI_Controller {
 	}
 
 	public function doc(){
-		$this->load->view('pages/documents');
+		$session_data=$this->session->userdata('logged_in');
+        $data['username']=$session_data['username'];
+        $data['type']=$session_data['type'];
+        $data['pic']=$session_data['pic'];
+
+		$this->load->view('pages/documents',$data);
 	}
 
 	public function getDocuments(){
@@ -460,7 +500,7 @@ class Documents extends CI_Controller {
 		$svd = $this->singularvaluedecomposition->SVD($matrix_tfidf);
 
 		// $m = count($matrix_tfidf);
-  //       $n = count($matrix_tfidf[0]);
+  		// $n = count($matrix_tfidf[0]);
 
 		// $matrix_Vt = $this->singularvaluedecomposition->matrixRound($svd['V']);
 		// $matrix_S  = $this->singularvaluedecomposition->matrixRound($svd['S']);
@@ -596,6 +636,11 @@ class Documents extends CI_Controller {
 	}
 
 	public function goProcess($id){
+		$session_data=$this->session->userdata('logged_in');
+        $data['username']=$session_data['username'];
+        $data['type']=$session_data['type'];
+        $data['pic']=$session_data['pic'];
+
 		$data['ids'] = $id;
 
 		$plain = $this->db->where('fk_documents', $id)->get('sentence')->result();

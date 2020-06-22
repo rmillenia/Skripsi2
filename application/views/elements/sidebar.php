@@ -4,13 +4,13 @@
 				<div class="sidebar-content">
 					<div class="user">
 						<div class="avatar-sm float-left mr-2">
-							<img src="<?= base_url('/assets/img/profile.jpg')?>" alt="..." class="avatar-img rounded-circle">
+							<img src="<?= base_url('/assets/uploads/pic/')?><?= $pic;?>" alt="..." class="avatar-img rounded-circle">
 						</div>
 						<div class="info">
 							<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
 								<span>
-									Hizrian
-									<span class="user-level">Administrator</span>
+									<?= ucfirst($username)?>
+									<span class="user-level"><?php if($type == "admin"){ echo "Administrator";}else{ echo "Pegawai";}?></span>
 									<span class="caret"></span>
 								</span>
 							</a>
@@ -18,11 +18,6 @@
 
 							<div class="collapse in" id="collapseExample">
 								<ul class="nav">
-									<li>
-										<a href="#profile">
-											<span class="link-collapse">My Profile</span>
-										</a>
-									</li>
 									<li>
 										<a href="#edit">
 											<span class="link-collapse">Edit Profile</span>
@@ -58,6 +53,13 @@
 							</span>
 							<h4 class="text-section">Components</h4>
 						</li>
+						<?php if($type == "admin"){?>
+						<li class="nav-item">
+							<a href="<?= base_url('User') ?>" class="collapsed">
+								<i class="fas fa-user"></i>
+								<p>User</p>
+							</a>
+						</li>
 						<li class="nav-item">
 							<a href="<?= base_url('Stopword') ?>" class="collapsed">
 								<i class="fas fa-th-list"></i>
@@ -71,6 +73,7 @@
 							</a>
 						</li> -->
 						</li>
+						<?php } ?>
 						<li class="nav-item">
 							<a data-toggle="collapse" href="#base" class="collapsed" aria-expanded="false">
 								<i class="fas fa-layer-group"></i>
@@ -144,6 +147,16 @@
 								</ul>
 							</div> -->
 						</li>
+
+						<?php if($type == "admin"){?>
+						<li class="nav-item">
+							<a href="<?= base_url('Testing') ?>" class="collapsed">
+								<i class="fas fa-chart-line"></i>
+								<p>Testing</p>
+							</a>
+						</li>
+
+						<?php }?>
 						<!-- <li class="nav-item">
 							<a data-toggle="collapse" href="#tables">
 								<i class="fas fa-table"></i>

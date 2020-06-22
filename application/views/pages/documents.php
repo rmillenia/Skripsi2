@@ -63,12 +63,13 @@
 			},
 			'columns': [
 			{
-				"title" : "<input type='checkbox' class='checkbox-selectall' id='selectall'><label for='checkall'></label>",
+				"title" : "<div class='form-check'><label class='form-check-label'><input type='checkbox' class='form-check-input checkbox-selectall' id='selectall'><span class='form-check-sign'></span></label></div>",
+				"width": "1px",
 				"class": "text-center",
 				"orderable" : false,
 				"data": (data, type, row, meta) => {
 					let ret="";
-					ret+= '<input type="checkbox" class="sub_chk" id="sub_chk" name="sub_chk" value="' +data.id+ '" data-id="'+data.id+'"/>';
+					ret+= '<div class="form-check"><label class="form-check-label"><input type="checkbox" class="form-check-input sub_chk" id="sub_chk" name="sub_chk" value="' +data.id+ '" data-id="'+data.id+'"/><span class="form-check-sign"></span></label></div>';
 					return ret;
 
 				}
@@ -88,6 +89,14 @@
 				'data': 'no_perkara'
 			},
 			{
+				'title': 'Terdakwa',
+				'data': 'terdakwa'
+			},
+			{
+				'title': 'Pengadilan',
+				'data': 'pengadilan'
+			},
+			{
 				'title': 'Nama Dokumen',
 				"visible":true,
 				"class": "text-center noExport",
@@ -97,10 +106,6 @@
 
 					return ret;
 				}
-			},
-			{
-				'title': 'Tanggal',
-				'data': 'date_time'
 			},
 			// {
 			// 	"title": "Actions",

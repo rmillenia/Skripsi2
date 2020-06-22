@@ -3,9 +3,34 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Testing extends CI_Controller {
 
+	public function __construct(){
+		parent::__construct();
+
+		if ($this->session->userdata('logged_in')) {
+            $session_data=$this->session->userdata('logged_in');
+            $data['username']=$session_data['username'];
+            $data['type']=$session_data['type'];
+            $current_controller = $this->router->fetch_class();
+            $this->load->library('Acl');
+            if (! $this->acl->is_public($current_controller)){
+                if (! $this->acl->is_allowed($current_controller, $data['type'])){
+                    echo "<script>alert('You Do not Have Permission to Access This'); </script>";
+                    redirect($_SERVER['HTTP_REFERER'],'refresh');
+                }
+            }
+        }else{
+            redirect('Home/login','refresh');
+        }
+	}
+
 	public function index()
 	{
-		$this->load->view('pages/testing');
+		$session_data=$this->session->userdata('logged_in');
+        $data['username']=$session_data['username'];
+        $data['type']=$session_data['type'];
+        $data['pic']=$session_data['pic'];
+
+		$this->load->view('pages/testing',$data);
 	}
 
 	public function getList()
@@ -70,16 +95,23 @@ class Testing extends CI_Controller {
 								'id_document'		=> $id,
 								'list_auto'			=> implode(",",$getSummaryResult[$i]),
 								'list_manual'		=> implode(",", $result),
-								'precision'			=> $precision[$i],
-								'recall'			=> $recall[$i],
-								'f_measure'			=> $f_measure[$i],
-								'accuracy'			=> $accuracy[$i],
+								'precision'			=> number_format($precision[$i],3),
+								'recall'			=> number_format($recall[$i],3),
+								'f_measure'			=> number_format($f_measure[$i],3),
+								'accuracy'			=> number_format($accuracy[$i],3),
 								'kompresi'			=> $kompresi[$i],
 					);
 					$insert = $this->db->insert('testing', $data_test);
 				}	
-			}	
-			echo json_encode($id);
+			}
+
+			$kompresi = $this->input->post('kompresi');
+			if($kompresi == null){
+				$kompresi = 0.5;
+			}
+			$data['data'] = $this->db->query(' SELECT documents.id, testing.recall,testing.precision,testing.f_measure, testing.accuracy FROM `documents` join testing on documents.id = testing.id_document where kompresi = '.$kompresi)->result();	
+
+			echo json_encode($data);
 		}  
 	}
 
@@ -256,6 +288,28 @@ class Testing extends CI_Controller {
 		$data['data'] = $this->db->query(' SELECT documents.id, testing.recall,testing.precision,testing.f_measure, testing.accuracy FROM `documents` join testing on documents.id = testing.id_document where kompresi = '.$kompresi)->result();
         echo json_encode($data);
     }
+
+    public function grafikAverage(){
+    	$kompresi = $this->input->post('kompresi');
+		if($kompresi == null){
+			$kompresi = 0.5;
+		}
+		$data['data'] = $this->db->query(' SELECT documents.id, testing.recall,testing.precision,testing.f_measure, testing.accuracy FROM `documents` join testing on documents.id = testing.id_document where kompresi = '.$kompresi)->result();
+        echo json_encode($data);
+    }
+
+    public function deleteList(){
+		$no = $this->input->post('id');
+		$delete = $this->db->where('id_document', $no)->delete('testing');
+
+		$kompresi = $this->input->post('kompresi');
+		if($kompresi == null){
+			$kompresi = 0.5;
+		}
+		$data['data'] = $this->db->query(' SELECT documents.id, testing.recall,testing.precision,testing.f_measure, testing.accuracy FROM `documents` join testing on documents.id = testing.id_document where kompresi = '.$kompresi)->result();
+
+		echo json_encode($data);
+	}
 }
 
 ?>

@@ -100,7 +100,7 @@
 					<div class="row">
 						<div class="col-md-12">
 							<div class="card">
-								<canvas id="multipleLineChart"></canvas>
+								<canvas id="multipleLineChart" style="height: 400px"></canvas>
 							</div>
 						</div>
 					</div>
@@ -117,10 +117,181 @@
 	var table_testing;
 	var multipleLineChart = document.getElementById('multipleLineChart').getContext('2d');
 
+	grafik();
+
 	$(document).ready(function() {
+		table_testing = $('#get-testing').DataTable({
+			"ajax": {
+				'url': "<?= base_url("Testing/getList")?>",
+			},
+			"columns": [
+			{
+				"title" : "<div class='form-check'><label class='form-check-label'><input type='checkbox' class='form-check-input checkbox-selectall' id='selectall'><span class='form-check-sign'></span></label></div>",
+				"class": "text-center",
+				"orderable" : false,
+				"data": (data, type, row, meta) => {
+					let ret="";
+					ret+= '<div class="form-check"><label class="form-check-label"><input type="checkbox" class="form-check-input sub_chk" id="sub_chk" name="sub_chk" value="' +data.id+ '" data-id="'+data.id+'"/><span class="form-check-sign"></span></label></div>';
+					return ret;
+
+				}
+			},
+			{
+				"title": "No",
+				"width": "15px",
+				"data": null,
+				"visible": true,
+				"class": "text-center",
+				render: (data, type, row, meta) => {
+					return meta.row + meta.settings._iDisplayStart + 1;
+				}
+			},
+			{
+				'title': 'No Perkara',
+				'data': 'no_perkara'
+			},
+			{
+				'title': 'Terdakwa',
+				'data': 'terdakwa'
+			},
+			{
+				'title': 'Pengadilan',
+				'data': 'pengadilan'
+			},
+			{
+				'title': 'Kalimat Peringkasan Manual',
+				'data': 'list_manual'
+			},
+			{
+				'title': 'Kalimat Peringkasan Otomatis',
+				'data': 'list_auto'
+			},
+			{
+				'title': 'Precision',
+				'data': 'precision'
+			},
+			{
+				'title': 'Recall',
+				'data': 'recall'
+			},
+			{
+				'title': 'F-Measure',
+				'data': 'f_measure'
+			},
+			{
+				"title": "Actions",
+				"width" : "120px",
+				"visible":true,
+				"class": "text-center noExport",
+				"data": (data, type, row) => {
+					let ret = "";
+					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id_document+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times-circle"></i></button>';
+
+					return ret;
+				}
+			}]
+		});
+
+		$('<label>&nbsp;&nbsp;&nbsp;&nbsp;Tingkat Kompresi :&nbsp;<select id="kompresi" name="kompresi" class="form-control form-control-sm" ><option value="0.25">25%</option><option value="0.5" selected>50%</option><option value="0.75">75%</option></select></label>').appendTo("#get-testing_length");
+		
+		$('form#addTesting').submit(function(e){
+			e.preventDefault();
+			var formData = new FormData(this);
+			var url = $(this).attr('action');
+			$.ajax({
+				url: url,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+					swal({
+						title: "Success",
+						type:"success",
+						text: "Your data has been added",
+						timer: 2000,
+						showConfirmButton: false
+					});	
+					$('#addRowModal').modal('hide');
+					table_testing.ajax.reload(null,false);
+					grafik(null);
+				},
+				cache : false,
+				contentType : false,
+				processData : false,
+				error: function(data) {
+					swal(data.responseText);
+				}         
+			});
+		});
+
+		$('#kompresi').on('change',function(){
+			var kompresi = $(this).val();
+			$.ajax({
+				url : "<?= base_url("Testing/getList")?>",
+				type : "POST",
+				data: {kompresi: kompresi},
+				success : function (data){
+							//alert(data);           
+					table_testing.clear();
+					let json = $.parseJSON(data);
+					table_testing.rows.add(json.data);
+					table_testing.draw(); 
+					grafik(kompresi);
+				}
+			});
+		});
+	});
+
+	var deleteButton = (obj) => {
+		swal({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			type: 'warning',
+			buttons:{
+				confirm: {
+					text : 'Yes, delete it!',
+					className : 'btn btn-success'
+				},
+				cancel: {
+					visible: true,
+					className: 'btn btn-danger'
+				}
+			}
+		}).then((Delete) => {
+			if (Delete) {
+				$.ajax({
+					url: "<?= base_url("Testing/deleteList")?>",
+					type: "POST",
+					data: {
+						id: $(obj).data('id'),
+					},
+					success: function (data) {
+						swal({
+							title: "Success",
+							type:"success",
+							text: "Your data has been deleted",
+							timer: 2000,
+							showConfirmButton: false
+						});
+						table_testing.ajax.reload(null,false);
+						grafik(null);
+					},
+					error: function (data) {
+						swal(data.responseText);
+					}                    
+				})
+			}else{
+				swal.close();
+			}
+		});
+	};
+
+	function grafik(kompresi){
 		$ .ajax ({
 			url: "<?= base_url("Testing/grafik")?>",
-			method: "GET",
+			type: "POST",
+			data: {
+				kompresi: kompresi,
+			},
 			success: function (data) {
 				console.log (data);
 				var result  = $.parseJSON(data); 
@@ -135,412 +306,124 @@
 					value1.push(result.data[i].precision*100);
 					value2.push(result.data[i].recall*100);
 					value3.push(result.data[i].f_measure*100);
-                   // alert(data[i].sentence);
-               }
+				   // alert(data[i].sentence);
+				}
 
-               var myMultipleLineChart = new Chart(multipleLineChart, {
-               	type: 'line',
-               	data: {
-               		labels: label,
-               		datasets: [{
-               			label: "Precision",
-               			borderColor: "#1d7af3",
-               			pointBorderColor: "#FFF",
-               			pointBackgroundColor: "#1d7af3",
-               			pointBorderWidth: 2,
-               			pointHoverRadius: 4,
-               			pointHoverBorderWidth: 1,
-               			pointRadius: 4,
-               			backgroundColor: 'transparent',
-               			fill: true,
-               			borderWidth: 2,
-               			data: value1
-               		},{
-               			label: "Recall",
-               			borderColor: "#59d05d",
-               			pointBorderColor: "#FFF",
-               			pointBackgroundColor: "#59d05d",
-               			pointBorderWidth: 2,
-               			pointHoverRadius: 4,
-               			pointHoverBorderWidth: 1,
-               			pointRadius: 4,
-               			backgroundColor: 'transparent',
-               			fill: true,
-               			borderWidth: 2,
-               			data: value2
-               		}, {
-               			label: "F-Measure",
-               			borderColor: "#f3545d",
-               			pointBorderColor: "#FFF",
-               			pointBackgroundColor: "#f3545d",
-               			pointBorderWidth: 2,
-               			pointHoverRadius: 4,
-               			pointHoverBorderWidth: 1,
-               			pointRadius: 4,
-               			backgroundColor: 'transparent',
-               			fill: true,
-               			borderWidth: 2,
-               			data: value3
-               		}]
-               	},
-               	options : {
-               		responsive: true, 
-               		maintainAspectRatio: false,
-               		legend: {
-               			position: 'top',
-               		},
-               		scales: {
-               			xAxes: [{
-               				time: {
-               					unit: 'date'
-               				},
-               				gridLines: {
-               					display: false,
-               					drawBorder: false
-               				},
-               				ticks: {
-               					maxTicksLimit: 7
-               				}
-               			}],
-               			yAxes: [{
-               				ticks: {
-               					max: 100,
-               					beginAtZero: true,
-               					maxTicksLimit: 5,
-               					stepSize: 25,
-               					padding: 10,
-			                    // Include a dollar sign in the ticks
-			                    callback: function(value, index, values) {
-			                    	return value + "%";
-			                    }
-			                },
-			                gridLines: {
-			                	color: "rgb(234, 236, 244)",
-			                	zeroLineColor: "rgb(234, 236, 244)",
-			                	drawBorder: false,
-			                	borderDash: [2],
-			                	zeroLineBorderDash: [2]
-			                }
-			            }],
-			        },
-			        tooltips: {
-			        	backgroundColor: "rgb(255,255,255)",
-			        	bodyFontColor: "#858796",
-			        	titleMarginBottom: 10,
-			        	titleFontColor: '#6e707e',
-			        	titleFontSize: 14,
-			        	borderColor: '#dddfeb',
-			        	borderWidth: 1,
-			        	xPadding: 15,
-			        	yPadding: 15,
-			        	displayColors: false,
-			        	intersect: false,
-			        	mode: 'index',
-			        	caretPadding: 10,
-			        	callbacks: {
-			        		label: function(tooltipItem, chart) {
-			        			var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-			        			return datasetLabel + ': '+tooltipItem.yLabel + "%";
-			        		}
-			        	}
-			        },
-			        layout:{
-			        	padding:{left:15,right:15,top:15,bottom:15}
-			        }
-			    }
-			});
-
-           }
-       });
-
-table_testing = $('#get-testing').DataTable({
-	"ajax": {
-		'url': "<?= base_url("Testing/getList")?>",
-	},
-	"columns": [
-	{
-		"title": "No",
-		"width": "15px",
-		"data": null,
-		"visible": true,
-		"class": "text-center",
-		render: (data, type, row, meta) => {
-			return meta.row + meta.settings._iDisplayStart + 1;
-		}
-	},
-	{
-		'title': 'No Perkara',
-		'data': 'no_perkara'
-	},
-	{
-		'title': 'Terdakwa',
-		'data': 'terdakwa'
-	},
-	{
-		'title': 'Pengadilan',
-		'data': 'pengadilan'
-	},
-	{
-		'title': 'Kalimat Peringkasan Manual',
-		'data': 'list_manual'
-	},
-	{
-		'title': 'Kalimat Peringkasan Otomatis',
-		'data': 'list_auto'
-	},
-	{
-		'title': 'Precision',
-		'data': 'precision'
-	},
-	{
-		'title': 'Recall',
-		'data': 'recall'
-	},
-	{
-		'title': 'F-Measure',
-		'data': 'f_measure'
-	},
-	{
-		"title": "Actions",
-		"width" : "120px",
-		"visible":true,
-		"class": "text-center noExport",
-		"data": (data, type, row) => {
-			let ret = "";
-			ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times-circle"></i></button>';
-
-			return ret;
-		}
-	}
-	]
-});
-
-$('<label>&nbsp;&nbsp;&nbsp;&nbsp;Tingkat Kompresi :&nbsp;<select id="kompresi" name="kompresi" class="form-control form-control-sm" ><option value="0.25">25%</option><option value="0.5" selected>50%</option><option value="0.75">75%</option></select></label>').appendTo("#get-testing_length");
-$('form#addTesting').submit(function(e){
-	e.preventDefault();
-	var formData = new FormData(this);
-	var url = $(this).attr('action');
-	$.ajax({
-		url: url,
-		type: 'post',
-		data: formData,
-		success: function(data) {
-			swal({
-				title: "Success",
-				type:"success",
-				text: "Your data has been added",
-				timer: 2000,
-				showConfirmButton: false
-			});	
-			$('#addRowModal').modal('hide');
-			table_testing.ajax.reload(null,false);
-		},
-		cache : false,
-		contentType : false,
-		processData : false,
-		error: function(data) {
-			swal(data.responseText);
-		}         
-	});
-});
-
-$('#kompresi').on('change',function(){
-	var kompresi = $(this).val();
-	$.ajax({
-		url : "<?= base_url("Testing/getList")?>",
-		type : "POST",
-		data: {kompresi: kompresi},
-		success : function (data){
-	                //alert(data);           
-	                table_testing.clear();
-	                let json = $.parseJSON(data);
-	                table_testing.rows.add(json.data);
-	                table_testing.draw(); 
-	                $.ajax({
-	                	url : "<?= base_url("Testing/grafik")?>",
-	                	type : "POST",
-	                	data: {kompresi: kompresi},
-	                	success : function (data){
-
-	                		var result  = $.parseJSON(data); 
-	                		var label = [];
-	                		var value1 = [];
-	                		var value2 = [];
-	                		var value3 = [];
-
-	                		for (var i=0;i<result.data.length;++i)
-	                		{
-	                			label.push("Document "+result.data[i].id);
-	                			value1.push(result.data[i].precision*100);
-	                			value2.push(result.data[i].recall*100);
-	                			value3.push(result.data[i].f_measure*100);
-			                   // alert(data[i].sentence);
-			               }
-
-			               if(myMultipleLineChart != null){
-			               	myMultipleLineChart.destroy();
-			               }
-
-			               var myMultipleLineChart = new Chart(multipleLineChart, {
-			               	type: 'line',
-			               	data: {
-			               		labels: label,
-			               		datasets: [{
-			               			label: "Precision",
-			               			borderColor: "#1d7af3",
-			               			pointBorderColor: "#FFF",
-			               			pointBackgroundColor: "#1d7af3",
-			               			pointBorderWidth: 2,
-			               			pointHoverRadius: 4,
-			               			pointHoverBorderWidth: 1,
-			               			pointRadius: 4,
-			               			backgroundColor: 'transparent',
-			               			fill: true,
-			               			borderWidth: 2,
-			               			data: value1
-			               		},{
-			               			label: "Recall",
-			               			borderColor: "#59d05d",
-			               			pointBorderColor: "#FFF",
-			               			pointBackgroundColor: "#59d05d",
-			               			pointBorderWidth: 2,
-			               			pointHoverRadius: 4,
-			               			pointHoverBorderWidth: 1,
-			               			pointRadius: 4,
-			               			backgroundColor: 'transparent',
-			               			fill: true,
-			               			borderWidth: 2,
-			               			data: value2
-			               		}, {
-			               			label: "F-Measure",
-			               			borderColor: "#f3545d",
-			               			pointBorderColor: "#FFF",
-			               			pointBackgroundColor: "#f3545d",
-			               			pointBorderWidth: 2,
-			               			pointHoverRadius: 4,
-			               			pointHoverBorderWidth: 1,
-			               			pointRadius: 4,
-			               			backgroundColor: 'transparent',
-			               			fill: true,
-			               			borderWidth: 2,
-			               			data: value3
-			               		}]
-			               	},
-			               	options : {
-			               		responsive: true, 
-			               		maintainAspectRatio: false,
-			               		legend: {
-			               			position: 'top',
-			               		},
-			               		scales: {
-			               			xAxes: [{
-			               				time: {
-			               					unit: 'date'
-			               				},
-			               				gridLines: {
-			               					display: false,
-			               					drawBorder: false
-			               				},
-			               				ticks: {
-			               					maxTicksLimit: 7,
-			               				}
-			               			}],
-			               			yAxes: [{
-			               				ticks: {
-			               					max: 100,
-			               					beginAtZero: true,
-			               					maxTicksLimit: 5,
-			               					stepSize: 25,
-			               					padding: 10,
-						                    // Include a dollar sign in the ticks
-						                    callback: function(value, index, values) {
-						                    	return value + "%";
-						                    }
-			                			},
-						                gridLines: {
-						                	color: "rgb(234, 236, 244)",
-						                	zeroLineColor: "rgb(234, 236, 244)",
-						                	drawBorder: false,
-						                	borderDash: [2],
-						                	zeroLineBorderDash: [2]
-						                }
-			            			}],
-						        },
-						        tooltips: {
-						        	backgroundColor: "rgb(255,255,255)",
-						        	bodyFontColor: "#858796",
-						        	titleMarginBottom: 10,
-						        	titleFontColor: '#6e707e',
-						        	titleFontSize: 14,
-						        	borderColor: '#dddfeb',
-						        	borderWidth: 1,
-						        	xPadding: 15,
-						        	yPadding: 15,
-						        	displayColors: false,
-						        	intersect: false,
-						        	mode: 'index',
-						        	caretPadding: 10,
-						        	callbacks: {
-						        		label: function(tooltipItem, chart) {
-						        			var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-						        			return datasetLabel + ': '+tooltipItem.yLabel + "%";
-						        		}
-						        	}
-						        },
-						        layout:{
-						        	padding:{left:15,right:15,top:15,bottom:15}
-						        }
-						    }
-						});
+				var myMultipleLineChart = new Chart(multipleLineChart, {
+					type: 'line',
+					data: {
+						labels: label,
+						datasets: [{
+							label: "Precision",
+							borderColor: "#1d7af3",
+							pointBorderColor: "#FFF",
+							pointBackgroundColor: "#1d7af3",
+							pointBorderWidth: 2,
+							pointHoverRadius: 4,
+							pointHoverBorderWidth: 1,
+							pointRadius: 4,
+							backgroundColor: 'transparent',
+							fill: true,
+							borderWidth: 2,
+							data: value1
+						},{
+							label: "Recall",
+							borderColor: "#59d05d",
+							pointBorderColor: "#FFF",
+							pointBackgroundColor: "#59d05d",
+							pointBorderWidth: 2,
+							pointHoverRadius: 4,
+							pointHoverBorderWidth: 1,
+							pointRadius: 4,
+							backgroundColor: 'transparent',
+							fill: true,
+							borderWidth: 2,
+							data: value2
+						}, {
+							label: "F-Measure",
+							borderColor: "#f3545d",
+							pointBorderColor: "#FFF",
+							pointBackgroundColor: "#f3545d",
+							pointBorderWidth: 2,
+							pointHoverRadius: 4,
+							pointHoverBorderWidth: 1,
+							pointRadius: 4,
+							backgroundColor: 'transparent',
+							fill: true,
+							borderWidth: 2,
+							data: value3
+						}]
+					},
+					options : {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend: {
+							position: 'top',
+						},
+						scales: {
+							xAxes: [{
+								time: {
+									unit: 'date'
+								},
+								gridLines: {
+									display: false,
+									drawBorder: false
+								},
+								ticks: {
+									maxTicksLimit: 7
+								}
+							}],
+							yAxes: [{
+								ticks: {
+									max: 100,
+									beginAtZero: true,
+									maxTicksLimit: 5,
+									stepSize: 25,
+									padding: 10,
+									// Include a dollar sign in the ticks
+									callback: function(value, index, values) {
+										return value + "%";
+									}
+								},
+								gridLines: {
+									color: "rgb(234, 236, 244)",
+									zeroLineColor: "rgb(234, 236, 244)",
+									drawBorder: false,
+									borderDash: [2],
+									zeroLineBorderDash: [2]
+								}
+							}],
+						},
+						tooltips: {
+							backgroundColor: "rgb(255,255,255)",
+							bodyFontColor: "#858796",
+							titleMarginBottom: 10,
+							titleFontColor: '#6e707e',
+							titleFontSize: 14,
+							borderColor: '#dddfeb',
+							borderWidth: 1,
+							xPadding: 15,
+							yPadding: 15,
+							displayColors: false,
+							intersect: false,
+							mode: 'index',
+							caretPadding: 10,
+							callbacks: {
+								label: function(tooltipItem, chart) {
+									var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+									return datasetLabel + ': '+tooltipItem.yLabel + "%";
+								}
+							}
+						},
+						layout:{
+							padding:{left:15,right:15,top:15,bottom:15}
+						}
 					}
 				});
 			}
 		});
-	});
-});
+	}
 
-var deleteButton = (obj) => {
-	swal({
-		title: 'Are you sure?',
-		text: "You won't be able to revert this!",
-		type: 'warning',
-		buttons:{
-			confirm: {
-				text : 'Yes, delete it!',
-				className : 'btn btn-success'
-			},
-			cancel: {
-				visible: true,
-				className: 'btn btn-danger'
-			}
-		}
-	}).then((Delete) => {
-		if (Delete) {
-			$.ajax({
-				url: "<?= base_url("Testing/deleteList")?>",
-				type: "POST",
-				data: {
-					id: $(obj).data('id'),
-				},
-				success: function (data) {
-					swal({
-						title: "Success",
-						type:"success",
-						text: "Your data has been deleted",
-						timer: 2000,
-						showConfirmButton: false
-					});
-					table_stopword.ajax.reload(null,false);
-				},
-				error: function (data) {
-					swal(data.responseText);
-				}                    
-			})
-		}else{
-			swal.close();
-		}
-	});
-}
 
 
 

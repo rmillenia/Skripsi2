@@ -90,7 +90,7 @@
                                                             <tr>
                                                                 <th rowspan="2" class="text-center"> No </th>
                                                                 <th rowspan="2" class="text-center"> Kata - Penting </th>
-                                                                <th colspan="14" class="text-center"> TF </th>
+                                                                <th colspan="<= $count;?>" class="text-center"> TF </th>
                                                                 <th rowspan="2" class="text-center">DF</th>
                                                                 <th rowspan="2" class="text-center">IDF</th>
                                                                 <th rowspan="2" class="text-center">IDF + 1</th>
