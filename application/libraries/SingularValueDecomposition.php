@@ -415,7 +415,7 @@ class SingularValueDecomposition {
             $k++;
         }   while($clt < $q);
         
-        // prepare S matrix as n*n daigonal matrix of singular values
+        // prepare S matrix as n*n diagonal matrix of singular values
         for($i = 0; $i < $n; $i++){
             for($j = 0; $j < $n; $j++){
                 $S[$i][$j] = 0;

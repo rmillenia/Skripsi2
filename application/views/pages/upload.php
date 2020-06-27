@@ -7,7 +7,6 @@
         <?php $this->load->view('elements/sidebar') ?>
 
         <div id="loading" class="loading" style="display: none;">Loading&#8230;</div>
-
         <div class="main-panel">
             <div class="content">
                 <div class="page-inner">
@@ -54,6 +53,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div id="summary" style="display: none;">
                         <div class="row">
                             <div class="col-md-12">
@@ -93,6 +93,56 @@
                         </div>
                     </div>
                 </div>
+                <button id="download" class="btn btn-default" data-id="0" data-kompresi="0.5"> Download </button>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="detailUpload" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header no-bd">
+                    <h5 class="modal-title">
+                        <span class="fw-mediumbold">
+                        Add New</span> 
+                        <span class="fw-light">
+                            User
+                        </span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" id="updateUpload" action="<?= base_url('Documents/updateDocuments'); ?>" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <p class="small" style="color:#f25961">*Make Sure The Data Below is Correct</p>
+                                <input name="id" id="id" type="hidden">
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group form-group-default">
+                                    <label>No Perkara</label>
+                                    <input name="no_perkara" id="no_perkara" type="text" class="form-control" placeholder="*required">
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group form-group-default">
+                                    <label>Terdakwa</label>
+                                    <input name="terdakwa" id="terdakwa" type="text" class="form-control" placeholder="*required">
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-group form-group-default">
+                                    <label>Pengadilan</label>
+                                    <input name="pengadilan" id="pengadilan" type="text" class="form-control" placeholder="*required">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer no-bd">
+                        <input type="submit" class="btn btn-primary float-right" name="submit" value="Submit">
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -106,12 +156,16 @@
     var id = 0;
 
     var _PDF_DOC;
+    var link;
 
     // PDF.JS renders PDF in a <canvas> element
     var _CANVAS = document.querySelector('#pdf-preview');
 
     // will hold object url of chosen PDF
     var _OBJECT_URL;
+
+    (function(a){a.createModal=function(b){defaults={title:"",message:"Your Message Goes Here!",closeButton:false,scrollable:false};var b=a.extend({},defaults,b);var c=(b.scrollable===true)?'style="max-height: 420px;overflow-y: auto;"':"";html='<div class="modal fade" id="myModal">';html+='<div class="modal-dialog">';html+='<div class="modal-content">';html+='<div class="modal-header">';if(b.title.length>0){html+='<h4 class="modal-title">'+b.title+"</h4>"}html+="</div>";html+='<div class="modal-body" '+c+">";html+=b.message;html+="</div>";html+='<div class="modal-footer">';if(b.closeButton===true){html+='<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>'}html+="</div>";html+="</div>";html+="</div>";html+="</div>";a("body").prepend(html);a("#myModal").modal().on("hidden.bs.modal",function(){a(this).remove()})}})(jQuery);
+
 
     $(document).ready(function(){
         $('.dropify').dropify({
@@ -169,9 +223,25 @@
                         success: function(data) {
                             $("#loading").css('display','none');
                             $("#summary").css('display','inline');
-                            id = $.parseJSON(data);
+
+                            var result = $.parseJSON(data);
+                            id = result.data.id;
+                            var no_perkara = result.data.no_perkara;
+                            var terdakwa = result.data.terdakwa;
+                            var pengadilan = result.data.pengadilan;
+
+                            $('#detailUpload').modal('show');
+                            $('#id').val(id);
+                            $('#terdakwa').val(terdakwa);
+                            $('#no_perkara').val(no_perkara);
+                            $('#pengadilan').val(pengadilan);
+
+                            $("#download").data("kompresi", kompresi);
+                            $("#download").data("id", id);
+
                             showSummary(id,kompresi);
                             showDocuments(id);
+
                             $("#kompresiSelect").val(kompresi);
                             // $("html,#summary").animate({ scrollTop:$('#summary').prop("scrollHeight"))}, "slow");
                             // var $content = $("#summary");
@@ -200,8 +270,39 @@
             };
         });
 
+        $('form#updateUpload').submit(function(e){
+            e.preventDefault();
+            var formData = new FormData(this);
+            var url = $(this).attr('action');
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: formData,
+                success: function(data) {
+                    $('#detailUpload').modal('hide');
+
+                    swal({
+                        title: "Success",
+                        type:"success",
+                        text: "Your data has been added",
+                        timer: 2000,
+                        showConfirmButton: false
+                    }); 
+                },
+                cache : false,
+                contentType : false,
+                processData : false,
+                error: function(data) {
+                    swal(data.responseText);
+                }         
+            });
+        });
+
         $( '#kompresiSelect').on( 'change', function (i) {
             var kompresi = $(this).val();
+
+            $("#download").data("kompresi", kompresi);
+            $("#download").data("id", id);
 
             showSummary(id,kompresi);
         });
@@ -210,15 +311,38 @@
             $(this).next('.hidden').slideDown(750);
         });
 
+        $('#download').on( 'click', function (i) {
+            var id1 = $(this).data('id');
+            var kompresi1 = $(this).data('kompresi');
+
+            window.location.href = "<?= base_url('Documents/downloadSummary/')?>"+id1+'/'+kompresi1;
+
+           // download(id1,kompresi1);
+
+        });
+
+
+
+        $('#pdf-preview').on('click',function(){
+            var pdf_link = _OBJECT_URL;   
+            var iframe = '<object type="application/pdf" data="'+pdf_link+'" width="100%" height="500"></object>'
+            $.createModal({
+                title:'Preview',
+                message: iframe,
+                closeButton:true,
+                scrollable:false
+            });
+            return false;        
+        });
 
     });
 
-    function showSummary(id,kompresi){
-        $.ajax({
-            url: "<?= base_url('Documents/getSummaryDocuments'); ?>",
-            type: 'post',
-            data: {id: id, kompresi: kompresi},
-            success: function(data) {
+function showSummary(id,kompresi){
+    $.ajax({
+        url: "<?= base_url('Documents/getSummaryDocuments'); ?>",
+        type: 'post',
+        data: {id: id, kompresi: kompresi},
+        success: function(data) {
                 // alert(data.length);
                 var result  = $.parseJSON(data);                    
                 // alert(JSON.stringify(result));
@@ -230,14 +354,22 @@
                }
            }
        })
-    }
+}
 
-    function showDocuments(id){
-        $.ajax({
-            url: "<?= base_url('Documents/getSentenceDocuments'); ?>",
-            type: 'post',
-            data: {id: id},
-            success: function(data) {
+function download(id,kompresi){
+    $.ajax({
+        url: "<?= base_url('Documents/downloadSummary'); ?>",
+        type: 'post',
+        data: {id: id, kompresi: kompresi}
+       })
+}
+
+function showDocuments(id){
+    $.ajax({
+        url: "<?= base_url('Documents/getSentenceDocuments'); ?>",
+        type: 'post',
+        data: {id: id},
+        success: function(data) {
                 // var json = $.parseJSON(data);
                 // alert(data);
                 var result  = $.parseJSON(data);
@@ -250,7 +382,7 @@
                 // showReadMore();
             }
         })
-    }
+}
 
     // function showReadMore(){
     //     var text = $('#beforeSummary').text();
@@ -270,11 +402,13 @@
         PDFJS.getDocument({ url: pdf_url }).then(function(pdf_doc) {
             _PDF_DOC = pdf_doc;
 
+            // alert(pdf_url);
+
             // show the first page of PDF
             showPage(1);
 
             // destroy previous object url
-            URL.revokeObjectURL(_OBJECT_URL);
+            // URL.revokeObjectURL(_OBJECT_URL);
         }).catch(function(error) {
             // error reason
             alert(error.message);
@@ -330,6 +464,9 @@
             alert('Error : Exceeded size 10MB');
             return;
         }
+        if(_OBJECT_URL){
+            URL.revokeObjectURL(_OBJECT_URL);
+        }
 
         // validation is successful
 
@@ -343,6 +480,16 @@
         // send the object url of the pdf to the PDF preview function
         showPDF(_OBJECT_URL);
     });
+
+    // function getURL(){
+    //     document.querySelector("#pdf-file").addEventListener('change', function() {
+    //     // user selected PDF
+    //     var file = this.files[0];
+    //     _OBJECT_URL = URL.createObjectURL(file);
+    //     return(_OBJECT_URL);
+    //     });
+    // } 
+
 
 
 </script>

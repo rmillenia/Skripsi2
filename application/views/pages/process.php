@@ -358,17 +358,6 @@
                 'data' : 'f1'
             },
             {
-                'title': 'F2',
-                'data' : 'f2',
-                // render: (data, type, row, meta) => {
-                //     return casefolding['0'];
-                // }
-            },
-            {
-                'title': 'Bobot',
-                'data': 'bobot'
-            },
-            {
                 'title': 'Kalimat',
                 'data': 'sentence',
                 'autoWidth' : true
@@ -376,7 +365,7 @@
             ],
             columnDefs:[
             {
-                targets:[0,1,2,3,4],className:"truncate"
+                targets:[0,1,2],className:"truncate"
             }
             ],
             createdRow: function(row){

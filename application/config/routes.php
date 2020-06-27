@@ -51,7 +51,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 // $route['home'] = 'hello';
-$route['default_controller']='Dashboard';
+$route['default_controller']='Home/login';
 // $route['pegawai/(:any)']='hello/dataPegawai';
 // $route['home/2'] = 'hello/about';
 // $route['home/1'] = 'hello/news';

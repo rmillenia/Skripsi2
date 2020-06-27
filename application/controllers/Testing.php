@@ -43,7 +43,6 @@ class Testing extends CI_Controller {
 		$this->db->from('testing');
 		$this->db->join('documents', 'testing.id_document = documents.id');
 		$this->db->where('kompresi',$kompresi);
-		$this->db->order_by('id_testing', 'desc');
 		$query = $this->db->get();
 		$data['data'] = $query->result();
 		echo json_encode($data);
@@ -158,7 +157,7 @@ class Testing extends CI_Controller {
 			        	foreach ($sentenceManual as $k => $v) {
 			        		$a = similar_text( $value->sentence, $v, $percent);
 			        		if( $percent >= 95 ){
-			        			array_push( $arrayIdSentenceManual, $value->id_sentence);
+			        			array_push( $arrayIdSentenceManual, $value->no);
 			        		}
 			        	}
 			        }
@@ -210,7 +209,7 @@ class Testing extends CI_Controller {
 		$countSentence = count($this->db->where('fk_documents', $id_doc)->get('sentence')->result());
 		$sentenceSummary = round($countSentence * $kompresi);
 
-		$result = $this->db->query('SELECT id_sentence FROM sentence
+		$result = $this->db->query('SELECT id_sentence,no FROM sentence
 				    JOIN 
 				    (
 				        SELECT id_sentence as id2
@@ -223,7 +222,7 @@ class Testing extends CI_Controller {
 				    ORDER BY sentence.id_sentence asc')->result();
 
 		foreach ($result as $key => $value) {
-			$sentence[$key]	= $value->id_sentence; 	
+			$sentence[$key]	= $value->no; 	
 		}
 		
 		return $sentence;
@@ -233,10 +232,7 @@ class Testing extends CI_Controller {
 		$array_join = array_intersect($summaryAuto, $summaryManual);
 		$tpfp = count($summaryAuto);
 		$tp = count($array_join);
-
-		// var_dump($summaryAuto);
-		// exit();
-
+		
 		return $precision = $tp / $tpfp;
 
 	}
@@ -294,7 +290,7 @@ class Testing extends CI_Controller {
 		if($kompresi == null){
 			$kompresi = 0.5;
 		}
-		$data['data'] = $this->db->query(' SELECT documents.id, testing.recall,testing.precision,testing.f_measure, testing.accuracy FROM `documents` join testing on documents.id = testing.id_document where kompresi = '.$kompresi)->result();
+		$data['data'] = $this->db->query('SELECT AVG(recall) as recallAvg,AVG(`precision`) as precisionAvg, AVG(f_measure) as fmeasureAvg, AVG(accuracy) as accuracyAvg FROM `testing` where kompresi = '.$kompresi)->result();
         echo json_encode($data);
     }
 

@@ -33,6 +33,32 @@ class Home extends CI_Controller {
 		$this->load->view('pages/login');
 	}
 
+	public function register()
+	{
+		$this->load->view('pages/register');
+	}
+
+	public function cekRegister(){
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('fullname', 'Full Name', 'trim|required');
+		$this->form_validation->set_rules('username', 'Username', 'trim|required');
+		$this->form_validation->set_rules('password', 'Password', 'trim|required');
+		if ($this->form_validation->run() == FALSE) {
+			$this->load->view('pages/register');
+		} else {
+			$array = array(
+				'fullname' => $this->input->post('fullname'),
+				'username' => $this->input->post('username'),
+				'password' => md5($this->input->post('password')),
+				'pic' 	   => 'user-no-photo.png',
+				'type' 	   => 'Pegawai',
+				'status' => 1
+			 );
+			$data['data'] = $this->db->insert('users', $array);
+			echo json_encode($data);
+		}
+	}
+
 	public function logout()
 	{
 		$this->session->unset_userdata('logged_in');
@@ -64,11 +90,11 @@ class Home extends CI_Controller {
 				}
 				return true;
 			}else{
-				$this->form_validation->set_message('cekDb',"login failed, user don't have permission");
+				$this->form_validation->set_message('cekDb',"Login Failed, User Don't Have Permission. Please Contact The Administrator");
 			return false;
 			}
 		}else{
-			$this->form_validation->set_message('cekDb',"login failed");
+			$this->form_validation->set_message('cekDb',"Login Failed");
 			return false;
 		}
 	}

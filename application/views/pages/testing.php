@@ -10,7 +10,7 @@
 			<div class="content">
 				<div class="page-inner">
 					<div class="page-header">
-						<h4 class="page-title">Testing List</h4>
+						<h4 class="page-title">Testing</h4>
 						<ul class="breadcrumbs">
 							<li class="nav-home">
 								<a href="#">
@@ -21,7 +21,7 @@
 								<i class="flaticon-right-arrow"></i>
 							</li>
 							<li class="nav-item">
-								<a href="#">Stopword</a>
+								<a href="#">Testing</a>
 							</li>
 							<li class="separator">
 								<i class="flaticon-right-arrow"></i>
@@ -32,11 +32,65 @@
 						</ul>
 					</div>
 					<div class="row">
+						<div class="col-md-8">
+							<div class="card">
+								<canvas id="multipleLineChart" width="940px"></canvas>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="card card-stats card-round">
+								<div class="card-body ">
+									<div class="row">
+										<div class="col-7">
+											<canvas id="precisionDoughnut"  width="208px"></canvas>
+										</div>
+										<div class="col-5 col-stats">
+											<div class="numbers">
+												<p class="card-category">Precision</p>
+												<h4 class="card-title" id="precisionText"></h4>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card card-stats card-round">
+								<div class="card-body ">
+									<div class="row">
+										<div class="col-7">
+											<canvas id="recallDoughnut" width="208px"></canvas>
+										</div>
+										<div class="col-5 col-stats">
+											<div class="numbers">
+												<p class="card-category">Recall</p>
+												<h4 class="card-title" id="recallText"></h4>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card card-stats card-round">
+								<div class="card-body ">
+									<div class="row">
+										<div class="col-7">
+											<canvas id="fmeasureDoughnut" width="208px"></canvas>
+										</div>
+										<div class="col-5 col-stats">
+											<div class="numbers">
+												<p class="card-category" >F-measure</p>
+												<h4 class="card-title" id="fmeasureText"></h4>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
 						<div class="col-md-12">
 							<div class="card">
 								<div class="card-header">
 									<div class="d-flex align-items-center">
-										<h4 class="card-title">Testing</h4>
+										<h4 class="card-title">Testing List</h4>
 										<button class="btn btn-primary btn-round ml-auto" data-toggle="modal" data-target="#addRowModal">
 											<i class="fa fa-plus"></i>
 											Add Document
@@ -96,14 +150,6 @@
 							</div>
 						</div>
 					</div>
-
-					<div class="row">
-						<div class="col-md-12">
-							<div class="card">
-								<canvas id="multipleLineChart" style="height: 400px"></canvas>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -116,8 +162,15 @@
 
 	var table_testing;
 	var multipleLineChart = document.getElementById('multipleLineChart').getContext('2d');
+	var precisionDoughnut = document.getElementById('precisionDoughnut').getContext('2d');
+	var recallDoughnut = document.getElementById('recallDoughnut').getContext('2d');
+	var fmeasureDoughnut = document.getElementById('fmeasureDoughnut').getContext('2d');
+
+	var myPrecisionDoughnut,myRecallDoughnut,myFmeasureDoughnut;
+	var myMultipleLineChart;
 
 	grafik();
+	AverageChart();
 
 	$(document).ready(function() {
 		table_testing = $('#get-testing').DataTable({
@@ -213,6 +266,7 @@
 					$('#addRowModal').modal('hide');
 					table_testing.ajax.reload(null,false);
 					grafik(null);
+					AverageChart(null);
 				},
 				cache : false,
 				contentType : false,
@@ -231,13 +285,15 @@
 				data: {kompresi: kompresi},
 				success : function (data){
 							//alert(data);           
-					table_testing.clear();
-					let json = $.parseJSON(data);
-					table_testing.rows.add(json.data);
-					table_testing.draw(); 
-					grafik(kompresi);
-				}
-			});
+							table_testing.clear();
+							let json = $.parseJSON(data);
+							table_testing.rows.add(json.data);
+							table_testing.draw(); 
+
+							grafik(kompresi);
+							AverageChart(kompresi);
+						}
+					});
 		});
 	});
 
@@ -272,8 +328,10 @@
 							timer: 2000,
 							showConfirmButton: false
 						});
+
 						table_testing.ajax.reload(null,false);
 						grafik(null);
+						AverageChart(null);
 					},
 					error: function (data) {
 						swal(data.responseText);
@@ -293,12 +351,15 @@
 				kompresi: kompresi,
 			},
 			success: function (data) {
-				console.log (data);
 				var result  = $.parseJSON(data); 
 				var label = [];
 				var value1 = [];
 				var value2 = [];
 				var value3 = [];
+
+				if(myMultipleLineChart){
+					myMultipleLineChart.destroy();
+				}
 
 				for (var i=0;i<result.data.length;++i)
 				{
@@ -306,10 +367,11 @@
 					value1.push(result.data[i].precision*100);
 					value2.push(result.data[i].recall*100);
 					value3.push(result.data[i].f_measure*100);
+
 				   // alert(data[i].sentence);
 				}
 
-				var myMultipleLineChart = new Chart(multipleLineChart, {
+				myMultipleLineChart = new Chart(multipleLineChart, {
 					type: 'line',
 					data: {
 						labels: label,
@@ -417,6 +479,139 @@
 						},
 						layout:{
 							padding:{left:15,right:15,top:15,bottom:15}
+						}
+					}
+				});
+			}
+		});
+	}
+
+	function AverageChart(kompresi){
+		$ .ajax ({
+			url: "<?= base_url("Testing/grafikAverage")?>",
+			type: "POST",
+			data: {
+				kompresi: kompresi,
+			},
+			success: function (data) {
+				var result  = $.parseJSON(data); 
+				var precision = [];
+				var recall = [];
+				var fmeasure = [];
+				var empty1 = [];
+				var empty2 = [];
+				var empty3 = [];
+
+				$('#precisionText').empty();
+				$('#recallText').empty();
+				$('#fmeasureText').empty();
+
+				if(myPrecisionDoughnut && myRecallDoughnut && myFmeasureDoughnut){
+					myPrecisionDoughnut.destroy();
+					myRecallDoughnut.destroy();
+					myFmeasureDoughnut.destroy();
+				}
+
+				for (var i=0;i<result.data.length;++i)
+				{
+					precision.push(result.data[i].precisionAvg*100);
+					recall.push(result.data[i].recallAvg*100);
+					fmeasure.push(result.data[i].fmeasureAvg*100);
+					var empty1 = [100-result.data[i].precisionAvg*100];
+					var empty2 = [100-result.data[i].recallAvg*100];
+					var empty3 = [100-result.data[i].fmeasureAvg*100];
+
+					$('#precisionText').append(Math.ceil(result.data[i].precisionAvg*100)+"%");
+					$('#recallText').append(Math.ceil(result.data[i].recallAvg*100)+"%");
+					$('#fmeasureText').append(Math.ceil(result.data[i].fmeasureAvg*100)+"%");
+
+
+				   // alert(data[i].sentence);
+				}
+
+				myPrecisionDoughnut = new Chart(precisionDoughnut, {
+					type: 'doughnut',
+					data: {
+						datasets: [{
+							data: [precision,empty1],
+							backgroundColor: ['#1d7af3','#fff'],
+							borderColor: ['#1d7af3','#1d7af3']
+						}]
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend : {
+							display: false
+						},
+						tooltips : {
+							enabled: false
+						},
+						layout: {
+							padding: {
+								left: 20,
+								right: 20,
+								top: 20,
+								bottom: 20
+							}
+						}
+					}
+				});
+
+				myRecallDoughnut = new Chart(recallDoughnut, {
+					type: 'doughnut',
+					data: {
+						datasets: [{
+							data: [recall,empty2],
+							backgroundColor: ['#59d05d','#fff'],
+							borderColor: ['#59d05d','#59d05d']
+						}]
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend : {
+							display: false
+						},
+						tooltips : {
+							enabled: false
+						},
+						layout: {
+							padding: {
+								left: 20,
+								right: 20,
+								top: 20,
+								bottom: 20
+							}
+						}
+					}
+				});
+
+				myFmeasureDoughnut = new Chart(fmeasureDoughnut, {
+					type: 'doughnut',
+					data: {
+						datasets: [{
+							data: [fmeasure,empty3],
+							backgroundColor: ['#f3545d','#fff'],
+							borderColor: ['#f3545d','#f3545d']
+						}]
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend : {
+							display: false
+						},
+						tooltips : {
+							enabled: false
+						},
+						layout: {
+							padding: {
+								left: 20,
+								right: 20,
+								top: 20,
+								bottom: 20
+							}
 						}
 					}
 				});

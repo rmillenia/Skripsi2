@@ -65,10 +65,11 @@ class Documents extends CI_Controller {
 			);
               // print_r($this->upload->data());
 			$insert = $this->db->insert('documents', $data_doc);
+			$id_document = array('id' => $this->db->insert_id());
 			$id_doc = $this->db->insert_id();
 
 			$data_history = array(
-				'fk_document'		=> $id_doc,
+				'fk_document'	=> $id_doc,
 				'fk_user'		=> $id_user
 			);
 
@@ -76,9 +77,11 @@ class Documents extends CI_Controller {
 			// var_dump($id_doc);
 
 			$kompresi = $this->input->post('kompresi');
-			$this->pdf($file_name, $id_doc);
+			$data_result = $this->pdf($file_name, $id_doc);
+
+			$data['data'] = array_merge($data_result,$id_document);
 			
-			echo json_encode($id_doc);
+			echo json_encode($data);
              // print uploaded file data
 		}
 	}
@@ -101,6 +104,51 @@ class Documents extends CI_Controller {
 		$no = $this->input->post('ids');
 		$data['data'] = $this->db->where_in('id', $no)->delete('documents');
 		echo json_encode($data);
+	}
+
+	public function updateDocuments(){
+		$array = array(
+			'no_perkara' => $this->input->post('no_perkara'),
+			'terdakwa' => $this->input->post('terdakwa'), 
+			'pengadilan' => $this->input->post('pengadilan')
+		);
+
+		$no = $this->input->post('id');
+		$data['data'] = $this->db->where('id', $no)->update('documents',$array);
+		echo json_encode($data);
+	}
+
+	public function downloadSummary($id,$kompresi){
+		// $id = $this->input->post('id');
+		// $kompresi = $this->input->post('kompresi');
+
+		$result = $this->db->where('id', $id)->get('documents')->result();
+
+		foreach ($result as $key => $value) {
+			$data['no_perkara'] = $value->no_perkara;
+			$data['pengadilan'] = $value->pengadilan;
+		}
+
+		$countSentence = count($this->db->where('fk_documents', $id)->get('sentence')->result());
+		$sentenceSummary = round($countSentence * $kompresi);
+
+		$data['kalimat'] = $this->db->query('SELECT id_sentence,sentence FROM sentence
+				    JOIN 
+				    (
+				        SELECT id_sentence as id2
+				        FROM sentence 
+				        WHERE fk_documents = '.$id.'
+				        ORDER BY f1 desc LIMIT '.$sentenceSummary.'
+				    ) d
+				    ON sentence.id_sentence
+				    IN (d.id2)
+				    ORDER BY sentence.id_sentence asc')->result();
+
+		$this->load->library('pdf');
+		// $this->load->view('elements/template',$data);
+        $this->pdf->load_view('elements/template',$data);
+
+		// echo json_encode($id);
 	}
 
 	// public function update_doc($id_doc = null){
@@ -200,28 +248,28 @@ class Documents extends CI_Controller {
 		        	$tfidf 			= $this->tf_idf($preprocess, $id_doc);
 		        	$id_sentences	= $preprocess[0]['id_sentences'];
 		        	// var_dump($id_sentences);
-		        	$method_lsa 		= $this->lsa($tfidf[0]['matrix_tfidf'], $id_sentences, $id_doc);
-		        	$feature_numeric    = $this->feature_contain_numeric($sentences, $id_doc);
+		        	$method_lsa 	= $this->lsa($tfidf[0]['matrix_tfidf'], $id_sentences, $id_doc);
+		        	// $feature_numeric    = $this->feature_contain_numeric($sentences, $id_doc);
 
-		        	$all_sentences = $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
+		        	// $all_sentences = $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
 
-		        	$bobot_total = [];
+		       //  	$bobot_total = [];
 
-		        	foreach ($all_sentences as $key => $value) {
-		        		$f1 = $value->f1;
-		        		$f2 = $value->f2;
-		        		$bobot_total[$key] = $f1+$f2;
+		       //  	foreach ($all_sentences as $key => $value) {
+		       //  		$f1 = $value->f1;
+		       //  		$f2 = $value->f2;
+		       //  		$bobot_total[$key] = $f1+$f2;
 
-		        		$data = array(
-		        				'bobot' => $bobot_total[$key]
-		       					);
+		       //  		$data = array(
+		       //  				'bobot' => $bobot_total[$key]
+		       // 					);
 
-		        		$this->db->where('id_sentence', $id_sentences[$key]);
-		    			$this->db->update('sentence', $data);
+		       //  		$this->db->where('id_sentence', $id_sentences[$key]);
+		    			// $this->db->update('sentence', $data);
 
-		        	}
+		       //  	}
 
-		        	$result = $bobot_total;
+		        	$result = $data;
 		        	// var_dump($method);
 		        	// var_dump($preprocess['0']['preprocessing_sentences']);
 		        	
@@ -362,6 +410,7 @@ class Documents extends CI_Controller {
 				$v = substr($v, 0, -1);
 			}
 			$sentences_array[] = [
+				'no' => $k+1,
 				'sentence' => $v,
 				'fk_documents' => $id_doc
 			];
@@ -619,7 +668,7 @@ class Documents extends CI_Controller {
 				        SELECT id_sentence as id2
 				        FROM sentence 
 				        WHERE fk_documents = '.$id.'
-				        ORDER BY bobot desc LIMIT '.$sentenceSummary.'
+				        ORDER BY f1 desc LIMIT '.$sentenceSummary.'
 				    ) d
 				    ON sentence.id_sentence
 				    IN (d.id2)
