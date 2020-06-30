@@ -37,9 +37,8 @@
 								<div class="card-header">
 									<div class="d-flex align-items-center">
 										<h4 class="card-title">Add User</h4>
-										<button class="btn btn-primary btn-round ml-auto" data-toggle="modal" data-target="#addRowModal">
+										<button class="btn btn-icon btn-round btn-primary ml-auto" data-toggle="modal" data-target="#addRowModal">
 											<i class="fa fa-plus"></i>
-											Add User
 										</button>
 									</div>
 								</div>

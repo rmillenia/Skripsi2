@@ -123,7 +123,7 @@ class Home extends CI_Controller {
 		$id = $this->input->post('id');
 
 		if($id == 1){
-			$sql ="SELECT count(id) as total, DATE_FORMAT(date_time,'%d-%m-%Y') as value FROM documents inner join history on documents.id = history.fk_document GROUP BY WEEKOFYEAR(`date_time`)";
+			$sql ="SELECT COUNT(id) as total, WEEKDAY(history.date_time) as value FROM documents INNER JOIN history on documents.id = history.id_history WHERE WEEK(history.date_time) = WEEK(CURRENT_TIMESTAMP) GROUP BY WEEKDAY(history.date_time) ORDER BY WEEKDAY(history.date_time)";
 		}else if($id == 2){
 			$sql ="SELECT count(id) as total, DATE_FORMAT(date_time,'%M') as value FROM documents inner join history on documents.id = history.fk_document GROUP BY DATE_FORMAT(`date_time`, '%m%')";
 		}else{

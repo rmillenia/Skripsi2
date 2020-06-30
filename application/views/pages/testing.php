@@ -91,9 +91,8 @@
 								<div class="card-header">
 									<div class="d-flex align-items-center">
 										<h4 class="card-title">Testing List</h4>
-										<button class="btn btn-primary btn-round ml-auto" data-toggle="modal" data-target="#addRowModal">
+										<button class="btn btn-icon btn-round btn-primary ml-auto" data-toggle="modal" data-target="#addRowModal">
 											<i class="fa fa-plus"></i>
-											Add Document
 										</button>
 									</div>
 								</div>
@@ -238,7 +237,7 @@
 				"class": "text-center noExport",
 				"data": (data, type, row) => {
 					let ret = "";
-					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id_document+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times-circle"></i></button>';
+					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id_document+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times"></i></button>';
 
 					return ret;
 				}

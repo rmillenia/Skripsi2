@@ -150,7 +150,7 @@
                 "class": "text-center noExport",
                 "data": (data, type, row) => {
                     let ret = "";
-                    ret += ' <a href="<?= base_url('Documents/goProcess/');?>'+data.id+'" style=" text-decoration: none;color:black ">See Process&nbsp;&nbsp;</a><span class="fa fa-spinner" style="color: blue"></span>';
+                    ret += ' <a href="<?= base_url('Documents/goProcess/');?>'+data.id+'" style=" text-decoration: none;color:black ">See Process&nbsp;&nbsp;</a><span class="fa fa-spinner" style="color: #1572e8"></span>';
 
                     return ret;
                 }
@@ -173,13 +173,13 @@
         });
 
         $('#readMore').on('click', function () {
-            if($('#hidden').css('display') == 'none'){
+            if($('#hidden').css('display') == 'none' && $('#hidden1').css('display') == 'none'){
                 $("#hidden").css('display','inline');
                 $("#delete").css('display','none');
                 $("#hidden1").css('display','inline');
                 $("#delete1").css('display','none');
                 $("#readMore").html('Read Less');
-            }else if($('#hidden').css('display') != 'none'){
+            }else if($('#hidden').css('display') != 'none' && $('#hidden1').css('display') != 'none'){
                 $("#hidden").css('display','none');
                 $("#delete").css('display','inline');
                 $("#hidden1").css('display','none');
@@ -202,14 +202,14 @@
                     $('#afterSummary').empty();
                     for (var i=0;i<result.data.length;++i)
                     {
-                        $('#afterSummary').append(result.data[i].sentence+".<br>");
+                        $('#afterSummary').append(result.data[i].sentence+". ");
                        // alert(data[i].sentence);
                    }
 
                    var text = $('#afterSummary').text();
                    var maxL = 500;
                     // alert(text.length);
-                    if(text.length > maxL) {
+                    if(text.length > maxL && $('#readMore').text() == 'Read More') {
 
                         var begin = text.substr(0, maxL);
                         var end = text.substr(maxL);
@@ -242,7 +242,7 @@
                     $('#beforeSummary').empty();
                     for (var i=0;i<result.data.length;++i)
                     {
-                        $('#beforeSummary').append(result.data[i].sentence+".<br>");
+                        $('#beforeSummary').append(result.data[i].sentence+". ");
                         // alert(data[i].sentence);
                     }
 

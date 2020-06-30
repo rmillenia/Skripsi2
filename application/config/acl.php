@@ -78,6 +78,10 @@ $acl = array(
 	'Documents' => array(
 		'admin' => true,
 		'pegawai' => true,
+	),
+	'Profile' => array(
+		'admin' => true,
+		'pegawai' => true,
 	)
 );
 

@@ -37,9 +37,8 @@
 								<div class="card-header">
 									<div class="d-flex align-items-center">
 										<h4 class="card-title">Add Stopword</h4>
-										<button class="btn btn-primary btn-round ml-auto" data-toggle="modal" data-target="#addRowModal">
+										<button class="btn btn-icon btn-round btn-primary ml-auto" data-toggle="modal" data-target="#addRowModal">
 											<i class="fa fa-plus"></i>
-											Add Stopword
 										</button>
 									</div>
 								</div>
@@ -61,7 +60,7 @@
 												</div>
 												<form method="post" id="addStopword" action="<?= base_url('Stopword/insertList'); ?>" enctype="multipart/form-data">
 													<div class="modal-body">
-														<p class="small">Make sure you fill them all</p>
+														<p class="small" style="color: red">*Make sure you fill them all</p>
 														<div class="row">
 															<div class="col-sm-12">
 																<div class="form-group form-group-default">
@@ -83,6 +82,43 @@
 									<div class="table-responsive">
 										<table id="get-stopword" class="display table table-bordered table-hover" width="100%" style="width:100%" cellspacing="0">
 										</table>
+									</div>
+
+									<div class="modal fade" id="updateRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+										<div class="modal-dialog" role="document">
+											<div class="modal-content">
+												<div class="modal-header no-bd">
+													<h5 class="modal-title">
+														<span class="fw-mediumbold">
+														Update</span> 
+														<span class="fw-light">
+															Stopword
+														</span>
+													</h5>
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+													</button>
+												</div>
+												<form method="post" id="updateStopword" action="<?= base_url('Stopword/updateList'); ?>" enctype="multipart/form-data">
+													<div class="modal-body">
+														<p class="small" style="color: red">*Make sure you fill them all</p>
+														<div class="row">
+															<div class="col-sm-12">
+																<input name="idStopword" id="idStopword" type="hidden">
+																<div class="form-group form-group-default">
+																	<label>Stopword</label>
+																	<input name="stopwordList" id="stopwordList" type="text" class="form-control" placeholder="*required">
+																</div>
+															</div>
+														</div>
+													</div>
+													<div class="modal-footer no-bd">
+														<input type="submit" class="btn btn-primary float-right" name="submit" value="Update">
+														<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+													</div>
+												</form>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -121,12 +157,12 @@
 			},
 			{
 				"title": "Actions",
-				"width" : "120px",
+				"width" : "130px",
 				"visible":true,
 				"class": "text-center noExport",
 				"data": (data, type, row) => {
 					let ret = "";
-					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times-circle"></i></button>';
+					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-id="'+data.id+'" onclick="deleteButton(this)" data-original-title="Remove"><i class="fa fa-lg fa-times"></i></button><button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-warning" data-id="'+data.id+'" data-name="'+data.stopword+'" onclick="updateButton(this)" data-original-title="Update"><i class="fa fa-lg fa-pencil-alt"></i></button>';
 
 					return ret;
 				}
@@ -160,6 +196,36 @@
 				}         
 			});
 		});
+
+		$('form#updateStopword').submit(function(e){
+			e.preventDefault();
+			var formData = new FormData(this);
+			var url = $(this).attr('action');
+			$.ajax({
+				url: url,
+				type: 'post',
+				data: formData,
+				success: function(data) {
+					swal({
+						title: "Success",
+						type:"success",
+						text: "Your data has been added",
+						timer: 2000,
+						showConfirmButton: false
+					});	
+					$('#updateRowModal').modal('hide');
+					table_stopword.ajax.reload(null,false);
+				},
+				cache : false,
+				contentType : false,
+				processData : false,
+				error: function(data) {
+					swal(data.responseText);
+				}         
+			});
+		});
+
+
 	});
 
 	var deleteButton = (obj) => {
@@ -203,6 +269,16 @@
 				swal.close();
 			}
 		});
+	}
+
+	var updateButton = (obj) => {
+		// alert($(obj).data('id'));
+		document.getElementById('idStopword').value = $(obj).data('id');
+		document.getElementById('stopwordList').value = $(obj).data('name');
+		// $('#idStopword').val($(obj).data('id'));
+		// $('#stopwordList').val($(obj).data('name'));
+		$('#updateRowModal').modal('show');
+		
 	}
 
 </script>

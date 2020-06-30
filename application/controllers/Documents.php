@@ -623,37 +623,37 @@ class Documents extends CI_Controller {
 
 	}
 
-	public function feature_contain_numeric($text = null, $id_doc = null){
+	// public function feature_contain_numeric($text = null, $id_doc = null){
 		
-		$tokenizing = [];
-		$id_sentences = [];
-		foreach ($text as $key => $value) {
-			$id_sentences[$key] = $value->id_sentence;
-			$tokenizing[$key] = $this->process($value->sentence,false,false,false,true,false);
-		}
+	// 	$tokenizing = [];
+	// 	$id_sentences = [];
+	// 	foreach ($text as $key => $value) {
+	// 		$id_sentences[$key] = $value->id_sentence;
+	// 		$tokenizing[$key] = $this->process($value->sentence,false,false,false,true,false);
+	// 	}
 
-		$feature_numeric = [];
-        foreach ($tokenizing as $key => $value) {
-            $numeric_amount = 0;
-            foreach ($value as $k => $v) {
-                if (is_numeric(preg_replace("/[^a-zA-Z0-9\s .]/", "", $v))) {
-                    $numeric_amount++;
-                }
-            }
-            $feature_numeric[$key] = $numeric_amount / count($value);
+	// 	$feature_numeric = [];
+ //        foreach ($tokenizing as $key => $value) {
+ //            $numeric_amount = 0;
+ //            foreach ($value as $k => $v) {
+ //                if (is_numeric(preg_replace("/[^a-zA-Z0-9\s .]/", "", $v))) {
+ //                    $numeric_amount++;
+ //                }
+ //            }
+ //            $feature_numeric[$key] = $numeric_amount / count($value);
 
-            $data = array(
-		        	'f2' => $feature_numeric[$key]
-		    );
+ //            $data = array(
+	// 	        	'f2' => $feature_numeric[$key]
+	// 	    );
 
-            $this->db->where('id_sentence', $id_sentences[$key]);
-		    $this->db->update('sentence', $data);
-        }
+ //            $this->db->where('id_sentence', $id_sentences[$key]);
+	// 	    $this->db->update('sentence', $data);
+ //        }
 
 
 
-        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
-	}
+ //        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
+	// }
 
 	public function getSummaryDocuments(){
 		$id = $this->input->post('id');

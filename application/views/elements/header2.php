@@ -232,7 +232,7 @@
 									<div class="avatar-lg"><img src="<?= base_url('assets/uploads/pic/')?><?= $pic;?>" alt="image profile" class="avatar-img rounded"></div>
 									<div class="u-text">
 										<h4><?= $username;?></h4>
-										<a href="#" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+										<a href="<?= base_url('Profile') ?>" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
 									</div>
 								</div>
 							</li>

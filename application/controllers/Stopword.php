@@ -48,9 +48,9 @@ class Stopword extends CI_Controller {
 	}
 
 	public function updateList(){
-		$where = array('id' => $this->input->post('id'));
+		$where = array('id' => $this->input->post('idStopword'));
 		$array = array(
-				'stopword' => $this->input->post('stopword')
+				'stopword' => $this->input->post('stopwordList')
 				);
 
 		$data['data'] = $this->db->where($where)->update('stopword_list', $array);

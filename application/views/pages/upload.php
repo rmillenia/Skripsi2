@@ -72,6 +72,7 @@
                                                       <option value="0.75">75 %</option>
                                                   </select>
                                               </div>
+                                              <div class="col-md-6"><button id="download" class="btn btn-icon btn-round btn-primary" data-id="0" data-kompresi="0.5" style="float: right;"><span class="fas fa-download" style="color: white;"></span></button></div>
                                           </div>
                                       </div>
                                       <div class="row">
@@ -93,7 +94,6 @@
                         </div>
                     </div>
                 </div>
-                <button id="download" class="btn btn-default" data-id="0" data-kompresi="0.5"> Download </button>
             </div>
         </div>
     </div>
@@ -103,10 +103,7 @@
                 <div class="modal-header no-bd">
                     <h5 class="modal-title">
                         <span class="fw-mediumbold">
-                        Add New</span> 
-                        <span class="fw-light">
-                            User
-                        </span>
+                        Documents Detail</span>
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -280,7 +277,6 @@
                 data: formData,
                 success: function(data) {
                     $('#detailUpload').modal('hide');
-
                     swal({
                         title: "Success",
                         type:"success",
@@ -356,13 +352,6 @@ function showSummary(id,kompresi){
        })
 }
 
-function download(id,kompresi){
-    $.ajax({
-        url: "<?= base_url('Documents/downloadSummary'); ?>",
-        type: 'post',
-        data: {id: id, kompresi: kompresi}
-       })
-}
 
 function showDocuments(id){
     $.ajax({

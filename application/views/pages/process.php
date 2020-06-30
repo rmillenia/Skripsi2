@@ -90,7 +90,7 @@
                                                             <tr>
                                                                 <th rowspan="2" class="text-center"> No </th>
                                                                 <th rowspan="2" class="text-center"> Kata - Penting </th>
-                                                                <th colspan="<= $count;?>" class="text-center"> TF </th>
+                                                                <th colspan="<?= $count;?>" class="text-center"> TF </th>
                                                                 <th rowspan="2" class="text-center">DF</th>
                                                                 <th rowspan="2" class="text-center">IDF</th>
                                                                 <th rowspan="2" class="text-center">IDF + 1</th>
@@ -124,7 +124,6 @@
                                                     </table>
                                                 </div>
                                             </div>
-
                                             <div class="tab-pane fade" id="pills-tfidf-nobd" role="tabpanel" aria-labelledby="pills-tfidf-tab-nobd">
                                              <div class="table-responsive">
                                                 <table id="get-tfidf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
@@ -132,7 +131,7 @@
                                                         <tr>
                                                             <th rowspan="2" class="text-center"> No </th>
                                                             <th rowspan="2" class="text-center"> Kata - Penting </th>
-                                                            <th colspan="14" class="text-center"> TF-IDF </th>
+                                                            <th colspan="<?= $count;?>" class="text-center"> TF-IDF </th>
                                                         </tr>
                                                         <tr>
                                                             <?php

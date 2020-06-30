@@ -60,29 +60,29 @@
 									</div>
 								</div>
 							</div>
-						<div class="card">
-							<div class="card-header">
-								<div class="card-title">Recent Activity</div>
-							</div>
-							<div class="card-body">
-								<ol class="activity-feed">
-									<?php
-									if($history){
-										foreach ($history as $key => $value) {?>
-										<li class="feed-item <?php if($key == 0){ echo'feed-item-secondary';}else if($key == 1){ echo 'feed-item-success';}else if($key == 2){ echo 'feed-item-info';}else if($key == 3){ echo 'feed-item-warning';}else if($key == 4){ echo 'feed-item-danger';}?>">
-											<time class="date"><?= date('d-M-Y', strtotime($value->date_time))?> <?= strtolower("at")?> <?= date('H:m:s', strtotime($value->date_time))?></time>
-											<span class="text"><?= ucfirst($value->fullname);?> summarized documents with no perkara : <a href="#"><?= $value->no_perkara;?></a></span>
+							<div class="card">
+								<div class="card-header">
+									<div class="card-title">Recent Activity</div>
+								</div>
+								<div class="card-body">
+									<ol class="activity-feed">
+										<?php
+										if($history){
+											foreach ($history as $key => $value) {?>
+											<li class="feed-item <?php if($key == 0){ echo'feed-item-secondary';}else if($key == 1){ echo 'feed-item-success';}else if($key == 2){ echo 'feed-item-info';}else if($key == 3){ echo 'feed-item-warning';}else if($key == 4){ echo 'feed-item-danger';}?>">
+												<time class="date"><?= date('d-M-Y', strtotime($value->date_time))?> <?= strtolower("at")?> <?= date('H:m:s', strtotime($value->date_time))?></time>
+												<span class="text"><?= ucfirst($value->fullname);?> summarized documents with no perkara : <a href="#"><?= $value->no_perkara;?></a></span>
+											</li>
+											<?php }
+										}else{?>
+										<li class="feed-item feed-item-danger">
+											<span class="text">No recent activity</span>
 										</li>
-										<?php }
-									}else{?>
-									<li class="feed-item feed-item-danger">
-										<span class="text">No recent activity</span>
-									</li>
-									<?php }?>
-								</ol>
+										<?php }?>
+									</ol>
+								</div>
 							</div>
 						</div>
-					</div>
 
 						<div class="col-md-6">
 							<div class="card full-height">
@@ -144,7 +144,6 @@
 		</div>
 	</div>
 </body>
-fetch_report
 <?php $this->load->view('elements/footer') ?>
 
 <script type="text/javascript">
@@ -160,7 +159,7 @@ fetch_report
 			var id = $(this).data('id');
 
 			if(myBarChart != null){
-					myBarChart.destroy();
+				myBarChart.destroy();
 			}
 
 			var label = [];
@@ -185,12 +184,54 @@ fetch_report
 				var label = [];
 				var value = [];
 
-				for (var i=0;i<result.data.length;++i)
-				{
-					label.push(result.data[i].value);
-					value.push(result.data[i].total);
-				   // alert(data[i].sentence);
+				// if(result.data[5].value){
+				// 	value.push(result.data[6].total);
+				// }else{
+				// 	value.push(0);
+				// }
+				label.push('Sun');
+				for (var a=0;a<result.data.length;++a) {
+					if(result.data[a].value == 6){
+						value.push(result.data[a].value);
+					}
 				}
+
+				// for(var i=0;i<=5;++i){
+				// 	if(i=0){
+				// 		label.push('Mon');
+				// 	}else if(i=1){
+				// 		label.push('Tue');
+				// 	}else if(i=2){
+				// 		label.push('Wed');
+				// 	}else if(i=3){
+				// 		label.push('Thu');
+				// 	}else if(i=4){
+				// 		label.push('Fri');
+				// 	}else if(i=5){
+				// 		label.push('Sat');
+				// 	}
+				// 	for(var b=0;b<result.data.length-1;++a){	
+				// 		if(result.data[b].value == i){
+				// 			value.push(result.data[b].total);
+				// 		}else{
+				// 		value.push(0);
+				// 		}
+				// 	}
+				// }
+
+
+
+				// for (var i=0;i<result.data.length;++i)
+				// {
+				// 	if(result.data[i].value !=null){
+				// 		value.push(result.data[i].total);
+				// 	}else{
+				// 		value.push(0);
+				// 	}
+				// 	'Sun','Mon','Tue','Wed','Thu','Fri','Sat'
+				//    // alert(data[i].sentence);
+				// }
+
 
 				if(myBarChart){
 					myBarChart.destroy();
@@ -232,6 +273,14 @@ fetch_report
 						}
 					}		
 				});
+
+				// for (var i=0;i<result.data.length;++i)
+				// {
+				// 	myBarChart.data.datasets[0].data[i] =  result.data[i].total;
+				//    // alert(data[i].sentence);
+				// }
+
+				// myBarChart.update();
 			}
 		});
 	}

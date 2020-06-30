@@ -84,11 +84,11 @@ class Testing extends CI_Controller {
 				for ($i=0; $i < 3 ; $i++) { 
 					$getSummaryResult[$i] = $this->getSummaryResult($id,$kompresi[$i]);
 					// var_dump($getSummaryResult[$i]);
-					// exit();
+					
 					$precision[$i]		  = $this->precision($getSummaryResult[$i],$result);
 					$recall[$i]	   		  = $this->recall($getSummaryResult[$i],$result);
 					$f_measure[$i]		  = $this->f_measure($precision[$i],$recall[$i]);
-					$accuracy[$i]		  = $this->precision($getSummaryResult[$i],$result,$id);
+					$accuracy[$i]		  = $this->accuracy($getSummaryResult[$i],$result,$id);
 
 					$data_test = array(
 								'id_document'		=> $id,
@@ -100,7 +100,10 @@ class Testing extends CI_Controller {
 								'accuracy'			=> number_format($accuracy[$i],3),
 								'kompresi'			=> $kompresi[$i],
 					);
+					
 					$insert = $this->db->insert('testing', $data_test);
+
+					// exit();
 				}	
 			}
 
@@ -273,7 +276,15 @@ class Testing extends CI_Controller {
         $fn = count($summaryManual)-$tp;
         $fp = count($summaryAuto)-$tp;
 
-        return $accuracy = ($tp+$tn)/($tp+$tn+$fn+$fp);
+        // var_dump($tp);
+        // var_dump($tn);
+        // var_dump($fn);
+        // var_dump($fp);
+
+        // exit();
+
+       	return $accuracy = ($tp+$tn)/($tp+$tn+$fn+$fp);
+        // return $tp;
     }
 
     public function grafik(){
@@ -306,6 +317,10 @@ class Testing extends CI_Controller {
 
 		echo json_encode($data);
 	}
+
+	// public function acc(){}
+
+
 }
 
 ?>
