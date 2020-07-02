@@ -277,10 +277,6 @@
 						legend: {
 							position : 'bottom'
 						},
-						title: {
-							display: true,
-							text: 'Traffic Stats'
-						},
 						tooltips: {
 							mode: 'index',
 							intersect: false

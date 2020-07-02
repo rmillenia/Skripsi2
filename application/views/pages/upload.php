@@ -179,7 +179,7 @@
             var url = $(this).attr('action');
             if ($('#pdf-file')[0].files[0] != null){
                 swal({
-                    title: 'Pilih Tingkat Kompresi Panjang Ringkasan',
+                    title: 'Choose the Compression Rate of Summary',
                     closeOnClickOutside: false,
                     buttons: {
                         one: {

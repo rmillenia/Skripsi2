@@ -31,139 +31,142 @@
 							</li>
 						</ul>
 					</div>
-                   <div class="row">
-                      <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title">No Perkara : <?=$noPerkara[0]['no_perkara'];?></h4>
-                            </div>
-                            <div class="card-body">
-                                <ul class="nav nav-pills nav-secondary" id="pills-tab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="pills-preprocess-tab" data-toggle="pill" href="#pills-preprocess" role="tab" aria-controls="pills-preprocess" aria-selected="true">Pre-processing</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="pills-tfidf-tab" data-toggle="pill" href="#pills-tfidf" role="tab" aria-controls="pills-tfidf" aria-selected="false">TF-IDF</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="pills-method-tab" data-toggle="pill" href="#pills-method" role="tab" aria-controls="pills-method" aria-selected="false">Method</a>
-                                    </li>
-                                </ul>
-                                <div class="tab-content mt-2 mb-3" id="pills-tabContent">
-                                    <div class="tab-pane fade show active" id="pills-preprocess" role="tabpanel" aria-labelledby="pills-preprocess-tab">
-                                        <ul class="nav nav-pills nav-secondary nav-pills-no-bd" id="pills-tab" role="tablist">
-                                            <li class="nav-item">
-                                                <a class="nav-link">Plain</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link">Filtering</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link">Stemming</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link">Tokenizing</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link">Stopword Removal</a>
-                                            </li>
-                                        </ul>
-                                        <div class="table-responsive">
-                                            <table id="get-preprocess" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
-                                            </table>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">No Perkara : <?=$noPerkara[0]['no_perkara'];?></h4>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="nav nav-pills nav-primary" id="pills-tab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="pills-preprocess-tab" data-toggle="pill" href="#pills-preprocess" role="tab" aria-controls="pills-preprocess" aria-selected="true">Pre-processing</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-tfidf-tab" data-toggle="pill" href="#pills-tfidf" role="tab" aria-controls="pills-tfidf" aria-selected="false">TF-IDF</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-method-tab" data-toggle="pill" href="#pills-method" role="tab" aria-controls="pills-method" aria-selected="false">Method</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="pills-method-tab" data-toggle="pill" href="#pills-result" role="tab" aria-controls="pills-result" aria-selected="false">Result</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content mt-2 mb-3" id="pills-tabContent">
+                                        <div class="tab-pane fade show active" id="pills-preprocess" role="tabpanel" aria-labelledby="pills-preprocess-tab">
+                                            <ul class="nav nav-pills nav-secondary nav-pills-no-bd" id="pills-tab" role="tablist">
+                                                <li class="nav-item">
+                                                    <a class="nav-link">Plain</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link">Filtering</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link">Stemming</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link">Tokenizing</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link">Stopword Removal</a>
+                                                </li>
+                                            </ul>
+                                            <div class="table-responsive">
+                                                <table id="get-preprocess" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
+                                                </table>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="pills-tfidf" role="tabpanel" aria-labelledby="pills-tfidf-tab">
-                                        <ul class="nav nav-pills nav-secondary nav-pills-no-bd" id="pills-tab-without-border" role="tablist">
-                                            <li class="nav-item">
-                                                <a class="nav-link active" id="pills-tf-tab-nobd" data-toggle="pill" href="#pills-tf-nobd" role="tab" aria-controls="pills-tf-nobd" aria-selected="false">Table TF</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link" id="pills-tfidf-tab-nobd" data-toggle="pill" href="#pills-tfidf-nobd" role="tab" aria-controls="pills-tfidf-nobd" aria-selected="false">Table TFIDF</a>
-                                            </li>
-                                        </ul>
-                                        <div class="tab-content mt-2 mb-3" id="pills-without-border-tabContent">
-                                            <div class="tab-pane fade show active" id="pills-tf-nobd" role="tabpanel" aria-labelledby="pills-tf-tab-nobd">
-                                                <div class="table-responsive">
-                                                    <table id="get-tf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
-                                                        <thead>
-                                                            <tr>
-                                                                <th rowspan="2" class="text-center"> No </th>
-                                                                <th rowspan="2" class="text-center"> Kata - Penting </th>
-                                                                <th colspan="<?= $count;?>" class="text-center"> TF </th>
-                                                                <th rowspan="2" class="text-center">DF</th>
-                                                                <th rowspan="2" class="text-center">IDF</th>
-                                                                <th rowspan="2" class="text-center">IDF + 1</th>
-                                                            </tr>
-                                                            <tr>
-                                                                <?php
-                                                                for ($i=1; $i <= $count ; $i++) { ?>
-                                                                <th class="text-center">Kalimat ke - <?= $i; ?></th>
-                                                                <?php } ?>
-                                                            </tr>
+                                        <div class="tab-pane fade" id="pills-tfidf" role="tabpanel" aria-labelledby="pills-tfidf-tab">
+                                            <ul class="nav nav-pills nav-primary nav-pills-no-bd" id="pills-tab-without-border" role="tablist">
+                                                <li class="nav-item">
+                                                    <a class="nav-link active" id="pills-tf-tab-nobd" data-toggle="pill" href="#pills-tf-nobd" role="tab" aria-controls="pills-tf-nobd" aria-selected="false">Table TF</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="pills-tfidf-tab-nobd" data-toggle="pill" href="#pills-tfidf-nobd" role="tab" aria-controls="pills-tfidf-nobd" aria-selected="false">Table TFIDF</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content mt-2 mb-3" id="pills-without-border-tabContent">
+                                                <div class="tab-pane fade show active" id="pills-tf-nobd" role="tabpanel" aria-labelledby="pills-tf-tab-nobd">
+                                                    <div class="table-responsive">
+                                                        <table id="get-tf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th rowspan="2" class="text-center"> No </th>
+                                                                    <th rowspan="2" class="text-center"> Kata - Penting </th>
+                                                                    <th colspan="<?= $count;?>" class="text-center"> TF </th>
+                                                                    <th rowspan="2" class="text-center">DF</th>
+                                                                    <th rowspan="2" class="text-center">IDF</th>
+                                                                    <th rowspan="2" class="text-center">IDF + 1</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <?php
+                                                                    for ($i=1; $i <= $count ; $i++) { ?>
+                                                                    <th class="text-center">Kalimat ke - <?= $i; ?></th>
+                                                                    <?php } ?>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach ($matrix_tf as $key => $value) {?>
+                                                                <tr>
+                                                                    <td><?= $no = $key + 1; ?></td>
+                                                                    <td><?=$text_list_word[$key]?></td>
 
-                                                        </thead>
-                                                        <tbody>
-                                                            <?php foreach ($matrix_tf as $key => $value) {?>
-                                                            <tr>
-                                                                <td><?= $no = $key + 1; ?></td>
-                                                                <td><?=$text_list_word[$key]?></td>
-
-                                                                <?php foreach ($value as $k => $v) {?>
-                                                                <td>
-                                                                    <?= $matrix_tf[$key][$k]?>
-                                                                </td>
+                                                                    <?php foreach ($value as $k => $v) {?>
+                                                                    <td>
+                                                                        <?= $matrix_tf[$key][$k]?>
+                                                                    </td>
+                                                                    <?php }?>
+                                                                    <td><?=$text_df[$key];?></td>
+                                                                    <td><?=$text_idf[$key];?></td>
+                                                                    <td><?=$text_idfplus1[$key];?></td>
+                                                                </tr>
                                                                 <?php }?>
-                                                                <td><?=$text_df[$key];?></td>
-                                                                <td><?=$text_idf[$key];?></td>
-                                                                <td><?=$text_idfplus1[$key];?></td>
-                                                            </tr>
-                                                            <?php }?>
-
-                                                        </tbody>
-                                                    </table>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="tab-pane fade" id="pills-tfidf-nobd" role="tabpanel" aria-labelledby="pills-tfidf-tab-nobd">
+                                                   <div class="table-responsive">
+                                                        <table id="get-tfidf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th rowspan="2" class="text-center"> No </th>
+                                                                    <th rowspan="2" class="text-center"> Kata - Penting </th>
+                                                                    <th colspan="<?= $count;?>" class="text-center"> TF-IDF </th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <?php
+                                                                    for ($i=1; $i <= $count ; $i++) { ?>
+                                                                    <th class="text-center">Kalimat ke - <?= $i; ?></th>
+                                                                    <?php } ?>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach ($matrix_tfidf as $key => $value) {?>
+                                                                <tr>
+                                                                    <td><?= $no = $key + 1; ?></td>
+                                                                    <td><?=$text_list_word[$key]?></td>
+                                                                    <?php foreach ($value as $k => $v) {?>
+                                                                    <td><?= $matrix_tfidf[$key][$k];?></td>
+                                                                    <?php }?>
+                                                                </tr>
+                                                                <?php }?>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="tab-pane fade" id="pills-tfidf-nobd" role="tabpanel" aria-labelledby="pills-tfidf-tab-nobd">
-                                             <div class="table-responsive">
-                                                <table id="get-tfidf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th rowspan="2" class="text-center"> No </th>
-                                                            <th rowspan="2" class="text-center"> Kata - Penting </th>
-                                                            <th colspan="<?= $count;?>" class="text-center"> TF-IDF </th>
-                                                        </tr>
-                                                        <tr>
-                                                            <?php
-                                                            for ($i=1; $i <= $count ; $i++) { ?>
-                                                            <th class="text-center">Kalimat ke - <?= $i; ?></th>
-                                                            <?php } ?>
-                                                        </tr>
-
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php foreach ($matrix_tfidf as $key => $value) {?>
-                                                        <tr>
-                                                            <td><?= $no = $key + 1; ?></td>
-                                                            <td><?=$text_list_word[$key]?></td>
-
-                                                            <?php foreach ($value as $k => $v) {?>
-                                                            <td>
-                                                                <?= $matrix_tfidf[$key][$k]?>
-                                                            </td>
-                                                            <?php }?>
-                                                        </tr>
-                                                        <?php }?>
-                                                    </tbody>
+                                        </div>
+                                        <div class="tab-pane fade" id="pills-method" role="tabpanel" aria-labelledby="pills-method-tab">
+                                            <div class="table-responsive"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="pills-result" role="tabpanel" aria-labelledby="pills-result-tab">
+                                           <div class="table-responsive">
+                                                <table id="get-result" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="tab-pane fade" id="pills-method" role="tabpanel" aria-labelledby="pills-method-tab">
-                                 <div class="table-responsive">
-                                    <table id="get-method" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
-                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -172,9 +175,6 @@
             </div>
         </div>
     </div>
-</div>
-</div>
-</div>
 </body>
 <?php $this->load->view('elements/footer') ?>
 
@@ -182,7 +182,7 @@
 
 	var table_preprocess;
     var table_tfidf;
-    var table_method;
+    var table_result;
     var countColumn;
     var ids = "<?= $ids?>";
 
@@ -253,84 +253,7 @@
             } 
         });
 
-        // table_tfidf = $('#get-tfidf').DataTable({
-        //     "autoWidth": true,
-        //     "responsive": true,
-        //     "lengthChange": true,
-        //     ajax: {
-        //         url: "<?= base_url()?>/Documents/getTfidf/"+ids,
-        //         "dataSrc": function(data) {
-        //             result = data.data;
-        //             countColumn = data.count - 1;
-        //             // result.forEach(entry => entry[0] += entry[0]);
-        //             return Object.values(result);
-        //         }
-        //     },
-        //     // data: result,
-        //     // 'columns': [
-        //     // {
-        //     //     "title": "No",
-        //     //     "width": "15px",
-        //     //     "data": null,
-        //     //     "visible": true,
-        //     //     "class": "text-center",
-        //     //     render: (data, type, row, meta) => {
-        //     //         return meta.row + meta.settings._iDisplayStart + 1;
-        //     //     }
-        //     // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-        //     // // {
-        //     // //     'title': 'Plain',
-        //     // // },
-
-        //     // ],
-        //     // columnDefs: [
-        //     // { targets: ['_all'], visible: true }
-        //     // ]
-
-
-        //     // ],
-        // });
-
-        table_method = $('#get-method').DataTable({
+        table_result = $('#get-result').DataTable({
             "autoWidth": true,
             "responsive": true,
             "lengthChange": true,
