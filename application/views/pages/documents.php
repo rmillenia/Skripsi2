@@ -131,7 +131,7 @@
 					"data": (data, type, row) => {
 						let ret = "";
 						ret += ' <a href="<?= base_url('assets/uploads/originalDocument/');?>'+data.file+'" class="btn btn-rounded btn-primary btn-sm" style="padding-top:2px;"><i class="fas fa-eye"></i> Teks Asli</a>';
-						ret += ' <button type="button" data-toggle="tooltip" title="" class="btn btn-rounded btn-warning btn-sm" data-id="'+data.id+'" onclick="showDocuments('+data.id+')" data-original-title="show"><i class="fas fa-eye"></i> Teks yang sudah diolah</button>';
+						ret += ' <button type="button" data-toggle="tooltip" title="" class="btn btn-rounded btn-warning btn-sm" data-id="'+data.id+'" onclick="showDocuments('+data.id+')" data-original-title="show"><i class="fas fa-eye"></i> Teks yang diekstraksi</button>';
 
 						return ret;
 					}

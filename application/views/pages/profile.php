@@ -22,7 +22,9 @@
 						<div class="card-body">
 							<div class="row">
 								<div class="col-md-2">
-									<img src="<?= base_url('/assets/uploads/pic/')?><?= $pic;?>" alt="..." class="avatar-img rounded-circle">
+									<br>
+									<center>
+									<img src="<?= base_url('/assets/uploads/pic/')?><?= $pic;?>" alt="..." class="avatar-img rounded-circle" style="max-width: 200px;max-height: 200px;"></center>
 								</div>
 								<?php foreach ($this->db->get_where('users', array('id_user' => $id))->result() as $key => $value) { ?>
 								<div class="col-md-6">

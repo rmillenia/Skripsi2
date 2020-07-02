@@ -32,60 +32,60 @@
 						</ul>
 					</div>
                     <div id="summary" class="more" style="display: none;overflow: hidden;">
-                     <div class="row">
-                      <div class="col-md-12">
-                       <div class="card">
-                        <div class="card-body" id="card1">
-                            <div class="page-title">Result</div>
-                            <div id="kompresi">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <h3>Tingkat Kompresi Ringkasan :</h3>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select name="kompresiSelect" id="kompresiSelect" class="form-control" style="padding: .3rem 1rem !important">
-                                          <option value="0.25">25 %</option>
-                                          <option value="0.5" >50 %</option>
-                                          <option value="0.75">75 %</option>
-                                      </select>
+                       <div class="row">
+                          <div class="col-md-12">
+                             <div class="card">
+                                <div class="card-body" id="card1">
+                                    <div class="page-title">Result</div>
+                                    <div id="kompresi">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <h3>Compression Rate :</h3>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select name="kompresiSelect" id="kompresiSelect" class="form-control" style="padding: .3rem 1rem !important">
+                                                  <option value="0.25">25 %</option>
+                                                  <option value="0.5" >50 %</option>
+                                                  <option value="0.75">75 %</option>
+                                              </select>
+                                          </div>
+                                      </div>
                                   </div>
-                              </div>
-                          </div>
-                          <div class="row">
-                            <div class="col-md-6">
-                                <h4><b>Before</b></h4>
-                                <div id="beforeSummary" class="text-justify">
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                        <h4><b>Before</b></h4>
+                                        <div id="beforeSummary" class="text-justify">
 
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h4><b>After</b></h4>
-                                <div id="afterSummary" class="text-justify">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h4><b>After</b></h4>
+                                        <div id="afterSummary" class="text-justify">
 
+                                        </div>
+                                    </div>
                                 </div>
+                                <br>
+                                <button type="button" value="Read More" class="btn btn-default" id="readMore" style="display: hidden">Read More</button>
                             </div>
                         </div>
-                        <br>
-                        <button type="button" value="Read More" class="btn btn-default" id="readMore" style="display: hidden">Read More</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                      <table id="get-result" class="display table table-bordered table-hover" width="100%" style="width:100%" cellspacing="0">
-                      </table>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                              <table id="get-result" class="display table table-bordered table-hover" width="100%" style="width:100%" cellspacing="0">
+                              </table>
+                          </div>
+                      </div>
                   </div>
               </div>
           </div>
       </div>
   </div>
-</div>
-</div>
 </div>
 </div>
 </body>
@@ -95,7 +95,8 @@
 
 	var table_result;
     var result;
-    var result_index;
+    // var result_index;
+    var idButton;
 
     $(document).ready(function() {
         // $('#summary').readmore({
@@ -126,31 +127,28 @@
             },
             {
                 'title': 'No Perkara',
+                "class": "text-center",
                 'data': 'no_perkara'
             },
             {
                 'title': 'Nama Dokumen',
-                "visible":true,
-                "class": "text-center noExport",
-                "data": (data, type, row) => {
-                    let ret = "";
-                    ret += ' <button type="button" class="btn btn-lg btn-rounded btn-primary">'+data.file+'</button>';
-
-                    return ret;
-                }
+                "class": "text-center",
+                'data' : 'file'
             },
             {
                 'title': 'Tanggal',
+                "class": "text-center",
                 'data': 'date_time'
             },
             {
                 "title": "Actions",
-                "width" : "120px",
+                "width" : "200px",
                 "visible":true,
                 "class": "text-center noExport",
                 "data": (data, type, row) => {
                     let ret = "";
-                    ret += ' <a href="<?= base_url('Documents/goProcess/');?>'+data.id+'" style=" text-decoration: none;color:black ">See Process&nbsp;&nbsp;</a><span class="fa fa-spinner" style="color: #1572e8"></span>';
+                    ret += '<a href="<?= base_url('Documents/goProcess/');?>'+data.id+'" class="btn btn-rounded btn-primary btn-sm" style="text-decoration: none; color:white"><i class="fa fa-spinner"></i> &nbsp; See Process</a>';
+                    ret += '&nbsp;&nbsp;<button type="button" data-toggle="tooltip" title="" id="btnShow" class="btn btn-rounded btn-warning btn-sm" data-id="'+data.id+'" data-original-title="show" onclick="showButton('+data.id+')" ><i class="fas fa-eye"></i>&nbsp; Result</button>';
 
                     return ret;
                 }
@@ -158,18 +156,17 @@
 
             ],
         });
-        $('#get-result tbody').on('click', 'tr', function() {
-            let index = table_result.row(this).index();
-            result_index = index;
-            $("#summary").css('display','inline');
-            showSummary(result[result_index].id,0.5);
-            showDocuments(result[result_index].id);
-            $("#kompresiSelect").val('0.5');
-            $('html, body').animate({ scrollTop: $("#main-panel").offset().top}, 2000);
-        });
+        // $('#btnShow').on( 'click', function(i) {
+        //     alert('s');
+        //     // $("#summary").css('display','inline');
+        //     // showSummary($(this).data(id),0.5);
+        //     // showDocuments($(this).data(id));
+        //     // $("#kompresiSelect").val('0.5');
+        //     // $('html, body').animate({ scrollTop: $("#main-panel").offset().top}, 2000);
+        // });
         $( '#kompresiSelect').on( 'change', function (i) {
             var kompresi = $(this).val();
-            showSummary(result[result_index].id,kompresi);
+            showSummary(idButton,kompresi);
         });
 
         $('#readMore').on('click', function () {
@@ -250,7 +247,7 @@
                     var maxL = 500;
                     var delimeter = '...';
                     // alert(text.length);
-                    if(text.length > maxL) {
+                    if(text.length > maxL && $('#readMore').text() == 'Read More') {
 
                         var begin = text.substr(0, maxL);
                         end = text.substr(maxL);
@@ -261,6 +258,15 @@
 
                 }
             })
+    }
+
+    function showButton(id){
+        idButton = id;
+        $("#summary").css('display','inline');
+        showSummary(id,0.5);
+        showDocuments(id);
+        $("#kompresiSelect").val('0.5');
+        $('html, body').animate({ scrollTop: $("#main-panel").offset().top}, 2000);
     }
 
     // $(document).on('click', '#btnRead', function () {

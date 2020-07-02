@@ -63,7 +63,7 @@
                                         <div id="kompresi">
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <h3>Tingkat Kompresi Ringkasan :</h3>
+                                                    <h3>Compression Rate :</h3>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <select name="kompresiSelect" id="kompresiSelect" class="form-control" style="padding: .3rem 1rem !important">
@@ -333,45 +333,45 @@
 
     });
 
-function showSummary(id,kompresi){
-    $.ajax({
-        url: "<?= base_url('Documents/getSummaryDocuments'); ?>",
-        type: 'post',
-        data: {id: id, kompresi: kompresi},
-        success: function(data) {
-                // alert(data.length);
-                var result  = $.parseJSON(data);                    
-                // alert(JSON.stringify(result));
-                $('#afterSummary').empty();
-                for (var i=0;i<result.data.length;++i)
-                {
-                    $('#afterSummary').append(result.data[i].sentence+".<br>");
-                   // alert(data[i].sentence);
+    function showSummary(id,kompresi){
+        $.ajax({
+            url: "<?= base_url('Documents/getSummaryDocuments'); ?>",
+            type: 'post',
+            data: {id: id, kompresi: kompresi},
+            success: function(data) {
+                    // alert(data.length);
+                    var result  = $.parseJSON(data);                    
+                    // alert(JSON.stringify(result));
+                    $('#afterSummary').empty();
+                    for (var i=0;i<result.data.length;++i)
+                    {
+                        $('#afterSummary').append(result.data[i].sentence+".<br>");
+                       // alert(data[i].sentence);
+                   }
                }
-           }
-       })
-}
+           })
+    }
 
 
-function showDocuments(id){
-    $.ajax({
-        url: "<?= base_url('Documents/getSentenceDocuments'); ?>",
-        type: 'post',
-        data: {id: id},
-        success: function(data) {
-                // var json = $.parseJSON(data);
-                // alert(data);
-                var result  = $.parseJSON(data);
-                // alert(JSON.stringify(result));
-                for (var i=0;i<result.data.length;++i)
-                {
-                    $('#beforeSummary').append(result.data[i].sentence+".<br>");
-                    // alert(data[i].sentence);
+    function showDocuments(id){
+        $.ajax({
+            url: "<?= base_url('Documents/getSentenceDocuments'); ?>",
+            type: 'post',
+            data: {id: id},
+            success: function(data) {
+                    // var json = $.parseJSON(data);
+                    // alert(data);
+                    var result  = $.parseJSON(data);
+                    // alert(JSON.stringify(result));
+                    for (var i=0;i<result.data.length;++i)
+                    {
+                        $('#beforeSummary').append(result.data[i].sentence+".<br>");
+                        // alert(data[i].sentence);
+                    }
+                    // showReadMore();
                 }
-                // showReadMore();
-            }
-        })
-}
+            })
+    }
 
     // function showReadMore(){
     //     var text = $('#beforeSummary').text();

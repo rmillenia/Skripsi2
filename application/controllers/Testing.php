@@ -268,23 +268,13 @@ class Testing extends CI_Controller {
         $sentenceNotInSummary = array_filter($sentence, function ($key) {
                 return !in_array($key, $join);
             });
-        // var_dump($sentenceNotInSummary);
-        // exit();
 
         $tn = count($sentenceNotInSummary);
 
         $fn = count($summaryManual)-$tp;
         $fp = count($summaryAuto)-$tp;
 
-        // var_dump($tp);
-        // var_dump($tn);
-        // var_dump($fn);
-        // var_dump($fp);
-
-        // exit();
-
        	return $accuracy = ($tp+$tn)/($tp+$tn+$fn+$fp);
-        // return $tp;
     }
 
     public function grafik(){

@@ -164,11 +164,11 @@
 				"class": "text-center noExport",
 				"data": (data, type, row) => {
 					let ret = "";
-					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-outline-primary" data-id="'+data.id_user+'" data-user="'+data.username+'" onclick="resetPassButton(this)" data-original-title="Reset"><i class="fa fa-lg fas fa-undo-alt" style="color:#1572e8"></i>&nbsp;Reset Password</button>&nbsp;&nbsp;';
+					ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-rounded btn-primary btn-sm" data-id="'+data.id_user+'" data-user="'+data.username+'" onclick="resetPassButton(this)" data-original-title="Reset"><i class="fa fa-lg fas fa-undo-alt"></i>&nbsp;Reset Password</button>&nbsp;&nbsp;';
 					if(data.status==1){
-						ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-outline-success" data-id="'+data.id_user+'" onclick="updateButton(this)" data-original-title="Update"><i class="fa fa-lg fa-check-circle" style="color:green"></i>&nbsp;Turn Permission On</button>';
+						ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-rounded btn-success btn-sm" data-id="'+data.id_user+'" onclick="updateButton(this)" data-original-title="Update"><i class="fa fa-lg fa-check-circle"></i>&nbsp;Turn Permission On</button>';
 					}else{
-						ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-outline-danger" data-id="'+data.id_user+'" onclick="updateButton(this)" data-original-title="Update"><i class="fa fa-lg fa-times-circle" style="color:#f25961"></i>&nbsp;Turn Permission Off</button>';
+						ret += '<button type="button" data-toggle="tooltip" title="" class="btn btn-rounded btn-danger btn-sm" data-id="'+data.id_user+'" onclick="updateButton(this)" data-original-title="Update"><i class="fa fa-lg fa-times-circle"></i>&nbsp;Turn Permission Off</button>';
 					}
 					
 

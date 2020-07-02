@@ -180,57 +180,80 @@
 			},
 			success: function (data) {
 				console.log (data);
+				// alert(data);
 				var result  = $.parseJSON(data); 
 				var label = [];
 				var value = [];
 
-				// if(result.data[5].value){
-				// 	value.push(result.data[6].total);
-				// }else{
-				// 	value.push(0);
-				// }
-				label.push('Sun');
-				for (var a=0;a<result.data.length;++a) {
-					if(result.data[a].value == 6){
-						value.push(result.data[a].value);
+				if(id == 1){
+					label = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+					value = Array(6).fill(0);
+
+					for (var i = 0; i < result.data.length; i++) {
+						if (result.data[i].value == 6) {
+							value.splice(0,1,result.data[i].total);
+						}else if(result.data[i].value == 0){
+							value.splice(1,1,result.data[i].total);
+						}else if(result.data[i].value == 1){
+							value.splice(2,1,result.data[i].total);
+						}else if(result.data[i].value == 2){
+							value.splice(3,1,result.data[i].total);
+						}else if(result.data[i].value == 3){
+							value.splice(4,1,result.data[i].total);
+						}else if(result.data[i].value == 4){
+							value.splice(5,1,result.data[i].total);
+						}else if(result.data[i].value == 5){
+							value.splice(6,1,result.data[i].total);
+						}
+					}
+
+					// alert(label);
+				}else if(id == 2){
+					label = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+					value = Array(11).fill(0);
+
+					for (var i=0;i<result.data.length;++i)
+					{
+						if(result.data[i].value =='January'){
+							value.splice(0,1,result.data[i].total);
+						}else if(result.data[i].value =='February'){
+							value.splice(1,1,result.data[i].total);
+						}else if(result.data[i].value =='March'){
+							value.splice(2,1,result.data[i].total);
+						}else if(result.data[i].value =='April'){
+							value.splice(3,1,result.data[i].total);
+						}else if(result.data[i].value =='May'){
+							value.splice(4,1,result.data[i].total);
+						}else if(result.data[i].value =='June'){
+							value.splice(5,1,result.data[i].total);
+						}else if(result.data[i].value =='July'){
+							value.splice(6,1,result.data[i].total);
+						}else if(result.data[i].value =='August'){
+							value.splice(7,1,result.data[i].total);
+						}else if(result.data[i].value =='September'){
+							value.splice(8,1,result.data[i].total);
+						}else if(result.data[i].value =='October'){
+							value.splice(9,1,result.data[i].total);
+						}else if(result.data[i].value =='November'){
+							value.splice(10,1,result.data[i].total);
+						}else if(result.data[i].value =='December'){
+							value.splice(11,1,result.data[i].total);
+						}
+						
+					}
+				}else{
+					var d = new Date();
+					var n = d.getFullYear();
+					label = [''+(n-2),''+(n-1),''+n,''+(n+1),''+(n+2)];
+					value = Array(4).fill(0);
+
+					for (var i = 0; i < result.data.length; i++) {
+						if(label.includes(''+result.data[i].value+'') == true){
+							index = label.indexOf(result.data[i].value);
+							value.splice(index,1,result.data[i].total);
+						}
 					}
 				}
-
-				// for(var i=0;i<=5;++i){
-				// 	if(i=0){
-				// 		label.push('Mon');
-				// 	}else if(i=1){
-				// 		label.push('Tue');
-				// 	}else if(i=2){
-				// 		label.push('Wed');
-				// 	}else if(i=3){
-				// 		label.push('Thu');
-				// 	}else if(i=4){
-				// 		label.push('Fri');
-				// 	}else if(i=5){
-				// 		label.push('Sat');
-				// 	}
-				// 	for(var b=0;b<result.data.length-1;++a){	
-				// 		if(result.data[b].value == i){
-				// 			value.push(result.data[b].total);
-				// 		}else{
-				// 		value.push(0);
-				// 		}
-				// 	}
-				// }
-
-
-
-				// for (var i=0;i<result.data.length;++i)
-				// {
-				// 	if(result.data[i].value !=null){
-				// 		value.push(result.data[i].total);
-				// 	}else{
-				// 		value.push(0);
-				// 	}
-				// 	'Sun','Mon','Tue','Wed','Thu','Fri','Sat'
-				//    // alert(data[i].sentence);
-				// }
 
 
 				if(myBarChart){
@@ -268,19 +291,15 @@
 								stacked: true,
 							}],
 							yAxes: [{
-								stacked: true
+								stacked: true,
+								ticks: {
+									stepSize: 1,
+									beginAtZero: true,
+								},
 							}]
 						}
 					}		
 				});
-
-				// for (var i=0;i<result.data.length;++i)
-				// {
-				// 	myBarChart.data.datasets[0].data[i] =  result.data[i].total;
-				//    // alert(data[i].sentence);
-				// }
-
-				// myBarChart.update();
 			}
 		});
 	}
