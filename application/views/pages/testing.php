@@ -34,7 +34,7 @@
 					<div class="row">
 						<div class="col-md-8">
 							<div class="card">
-								<canvas id="multipleLineChart" width="940px"></canvas>
+								<canvas id="multipleLineChart" width="1100px"></canvas>
 							</div>
 						</div>
 						<div class="col-md-4">
@@ -42,7 +42,7 @@
 								<div class="card-body ">
 									<div class="row">
 										<div class="col-7">
-											<canvas id="precisionDoughnut"  width="208px"></canvas>
+											<canvas id="precisionDoughnut"  width="189px"></canvas>
 										</div>
 										<div class="col-5 col-stats">
 											<div class="numbers">
@@ -57,7 +57,7 @@
 								<div class="card-body ">
 									<div class="row">
 										<div class="col-7">
-											<canvas id="recallDoughnut" width="208px"></canvas>
+											<canvas id="recallDoughnut" width="189px"></canvas>
 										</div>
 										<div class="col-5 col-stats">
 											<div class="numbers">
@@ -72,12 +72,27 @@
 								<div class="card-body ">
 									<div class="row">
 										<div class="col-7">
-											<canvas id="fmeasureDoughnut" width="208px"></canvas>
+											<canvas id="fmeasureDoughnut" width="189px"></canvas>
 										</div>
 										<div class="col-5 col-stats">
 											<div class="numbers">
 												<p class="card-category" >F-measure</p>
 												<h4 class="card-title" id="fmeasureText"></h4>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="card card-stats card-round">
+								<div class="card-body ">
+									<div class="row">
+										<div class="col-7">
+											<canvas id="accuracyDoughnut" width="189px"></canvas>
+										</div>
+										<div class="col-5 col-stats">
+											<div class="numbers">
+												<p class="card-category" >Accuracy</p>
+												<h4 class="card-title" id="accuracyText"></h4>
 											</div>
 										</div>
 									</div>
@@ -164,8 +179,9 @@
 	var precisionDoughnut = document.getElementById('precisionDoughnut').getContext('2d');
 	var recallDoughnut = document.getElementById('recallDoughnut').getContext('2d');
 	var fmeasureDoughnut = document.getElementById('fmeasureDoughnut').getContext('2d');
+	var accuracyDoughnut = document.getElementById('accuracyDoughnut').getContext('2d');
 
-	var myPrecisionDoughnut,myRecallDoughnut,myFmeasureDoughnut;
+	var myPrecisionDoughnut,myRecallDoughnut,myFmeasureDoughnut,myAccuracyDoughnut;
 	var myMultipleLineChart;
 
 	grafik();
@@ -218,18 +234,18 @@
 				'title': 'Kalimat Peringkasan Otomatis',
 				'data': 'list_auto'
 			},
-			{
-				'title': 'Precision',
-				'data': 'precision'
-			},
-			{
-				'title': 'Recall',
-				'data': 'recall'
-			},
-			{
-				'title': 'F-Measure',
-				'data': 'f_measure'
-			},
+			// {
+			// 	'title': 'Precision',
+			// 	'data': 'precision'
+			// },
+			// {
+			// 	'title': 'Recall',
+			// 	'data': 'recall'
+			// },
+			// {
+			// 	'title': 'F-Measure',
+			// 	'data': 'f_measure'
+			// },
 			{
 				"title": "Actions",
 				"width" : "120px",
@@ -355,6 +371,7 @@
 				var value1 = [];
 				var value2 = [];
 				var value3 = [];
+				var value4 = [];
 
 				if(myMultipleLineChart){
 					myMultipleLineChart.destroy();
@@ -362,10 +379,11 @@
 
 				for (var i=0;i<result.data.length;++i)
 				{
-					label.push("Document "+result.data[i].id);
+					label.push("Document "+(i+1));
 					value1.push(result.data[i].precision*100);
 					value2.push(result.data[i].recall*100);
 					value3.push(result.data[i].f_measure*100);
+					value4.push(result.data[i].accuracy*100);
 
 				   // alert(data[i].sentence);
 				}
@@ -413,6 +431,19 @@
 							fill: true,
 							borderWidth: 2,
 							data: value3
+						}, {
+							label: "Accuracy",
+							borderColor: "#ffad46",
+							pointBorderColor: "#FFF",
+							pointBackgroundColor: "#ffad46",
+							pointBorderWidth: 2,
+							pointHoverRadius: 4,
+							pointHoverBorderWidth: 1,
+							pointRadius: 4,
+							backgroundColor: 'transparent',
+							fill: true,
+							borderWidth: 2,
+							data: value4
 						}]
 					},
 					options : {
@@ -497,18 +528,22 @@
 				var precision = [];
 				var recall = [];
 				var fmeasure = [];
+				var accuracy = [];
 				var empty1 = [];
 				var empty2 = [];
 				var empty3 = [];
+				var empty4 = [];
 
 				$('#precisionText').empty();
 				$('#recallText').empty();
 				$('#fmeasureText').empty();
+				$('#accuracyText').empty();
 
-				if(myPrecisionDoughnut && myRecallDoughnut && myFmeasureDoughnut){
+				if(myPrecisionDoughnut && myRecallDoughnut && myFmeasureDoughnut  && myAccuracyDoughnut){
 					myPrecisionDoughnut.destroy();
 					myRecallDoughnut.destroy();
 					myFmeasureDoughnut.destroy();
+					myAccuracyDoughnut.destroy();
 				}
 
 				for (var i=0;i<result.data.length;++i)
@@ -516,13 +551,17 @@
 					precision.push(result.data[i].precisionAvg*100);
 					recall.push(result.data[i].recallAvg*100);
 					fmeasure.push(result.data[i].fmeasureAvg*100);
+					accuracy.push(result.data[i].accuracyAvg*100);
+
 					var empty1 = [100-result.data[i].precisionAvg*100];
 					var empty2 = [100-result.data[i].recallAvg*100];
 					var empty3 = [100-result.data[i].fmeasureAvg*100];
+					var empty4 = [100-result.data[i].accuracyAvg*100];
 
 					$('#precisionText').append(Math.ceil(result.data[i].precisionAvg*100)+"%");
 					$('#recallText').append(Math.ceil(result.data[i].recallAvg*100)+"%");
 					$('#fmeasureText').append(Math.ceil(result.data[i].fmeasureAvg*100)+"%");
+					$('#accuracyText').append(Math.ceil(result.data[i].accuracyAvg*100)+"%");
 
 
 				   // alert(data[i].sentence);
@@ -614,130 +653,38 @@
 						}
 					}
 				});
+
+				myAccuracyDoughnut = new Chart(accuracyDoughnut, {
+					type: 'doughnut',
+					data: {
+						datasets: [{
+							data: [accuracy,empty4],
+							backgroundColor: ['#ffad46','#fff'],
+							borderColor: ['#ffad46','#ffad46']
+						}]
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend : {
+							display: false
+						},
+						tooltips : {
+							enabled: false
+						},
+						layout: {
+							padding: {
+								left: 20,
+								right: 20,
+								top: 20,
+								bottom: 20
+							}
+						}
+					}
+				});
 			}
 		});
 	}
 
-
-
-
-	// am4core.ready(function() {
-
-	// 	// Themes begin
-	// 	am4core.useTheme(am4themes_animated);
-	// 	// Themes end
-
-
-
-
-	// 	var chart = am4core.create('chartdiv', am4charts.XYChart);
-	// 	chart.colors.step = 2;
-
-	// 	chart.legend = new am4charts.Legend();
-	// 	chart.legend.position = 'top';
-	// 	chart.legend.paddingBottom = 20;
-	// 	chart.legend.labels.template.maxWidth = 95;
-
-	// 	var xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-	// 	xAxis.dataFields.category = 'category';
-	// 	xAxis.renderer.cellStartLocation = 0.1;
-	// 	xAxis.renderer.cellEndLocation = 0.9;
-	// 	xAxis.renderer.grid.template.location = 0;
-
-	// 	var yAxis = chart.yAxes.push(new am4charts.ValueAxis());
-	// 	yAxis.min = 0;
-
-	// 	function createSeries(value, name) {
-	// 		var series = chart.series.push(new am4charts.ColumnSeries());
-	// 		series.dataFields.valueY = value;
-	// 		series.dataFields.categoryX = 'category';
-	// 		series.name = name;
-
-	// 		series.events.on("hidden", arrangeColumns);
-	// 		series.events.on("shown", arrangeColumns);
-
-	// 		var bullet = series.bullets.push(new am4charts.LabelBullet())
-	//     // bullet.interactionsEnabled = false
-	//     // bullet.dy = 10;
-	//     bullet.label.text = '{valueY}';
-	//     bullet.label.wrap = true;
-	//     bullet.label.fill = am4core.color('#000');
-	//     bullet.dy = -20;
-
-	//     bullet.tooltipText = `{categoryX} : {valueY}`;
-	//     series.tooltip.autoTextColor = false;
-	//     series.tooltip.label.fill = am4core.color("#FFFFFF");
-	//     // series.tooltip.pointerOrientation = "vertical";
-
-	//     return series;
-	// }
-
-	
-	// 	for( var i = 0; i < datacategory.length; i++){
-	// 		datax.push({"category": datacategory[i], "first" : data1[i],"second" : data2[i],"third" : data3[i], "fourth" : data4[i]});
-	// 	}
-	// 	chart.data= datax;
-
-
-	// }else{
-
-	// 	chart.data = [{
-	// 		"category": "Tidak Ada Data",
-	// 		"data1": 0,
-	// 		"data2": 0,
-	// 		"data3": 0,
-	// 		"data4": 0,
-	// 	}
-	// 	]
-	// }
-
-	// $this->db->query(' SELECT documents.id, testing.recall,testing.precision,testing.f_measure, testing.accuracy FROM `documents` join testing on documents.id = testing.id_document where kompresi = '.$kompresi)->result();
-
-
-
-	// createSeries('first', 'Precision');
-	// createSeries('second', 'Recall');
-	// createSeries('third', 'F-Measure');
-	// createSeries('fourth', 'Accuracy');
-
-	// function arrangeColumns() {
-
-	// 	var series = chart.series.getIndex(0);
-
-	// 	var w = 1 - xAxis.renderer.cellStartLocation - (1 - xAxis.renderer.cellEndLocation);
-	// 	if (series.dataItems.length > 1) {
-	// 		var x0 = xAxis.getX(series.dataItems.getIndex(0), "categoryX");
-	// 		var x1 = xAxis.getX(series.dataItems.getIndex(1), "categoryX");
-	// 		var delta = ((x1 - x0) / chart.series.length) * w;
-	// 		if (am4core.isNumber(delta)) {
-	// 			var middle = chart.series.length / 2;
-
-	// 			var newIndex = 0;
-	// 			chart.series.each(function(series) {
-	// 				if (!series.isHidden && !series.isHiding) {
-	// 					series.dummyData = newIndex;
-	// 					newIndex++;
-	// 				}
-	// 				else {
-	// 					series.dummyData = chart.series.indexOf(series);
-	// 				}
-	// 			})
-	// 			var visibleCount = newIndex;
-	// 			var newMiddle = visibleCount / 2;
-
-	// 			chart.series.each(function(series) {
-	// 				var trueIndex = chart.series.indexOf(series);
-	// 				var newIndex = series.dummyData;
-
-	// 				var dx = (newIndex - trueIndex + middle - newMiddle) * delta
-
-	// 				series.animate({ property: "dx", to: dx }, series.interpolationDuration, series.interpolationEasing);
-	// 				series.bulletsContainer.animate({ property: "dx", to: dx }, series.interpolationDuration, series.interpolationEasing);
-	// 			})
-	// 		}
-	// 	}
-	// }
-
-// }); // end am4core.ready()
 </script>
 </html>
