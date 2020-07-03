@@ -382,7 +382,7 @@
             });   
         });
 
-        $('#get-method tbody').on('click', 'tr', function() {
+        $('#get-result tbody').on('click', 'tr', function() {
             $(this).find('td').each (function() {
                 if($(this).hasClass('truncate')){
                     $(this).removeClass("truncate");
