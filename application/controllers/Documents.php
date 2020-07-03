@@ -537,7 +537,7 @@ class Documents extends CI_Controller {
 
 	}
 
-	function lsa($matrix_tfidf = null, $id_sentences = null, $id_doc = null){
+	function lsa($matrix_tfidf = null, $id_sentences = null){
 
 		// var_dump($id_sentences);
 		
@@ -547,22 +547,8 @@ class Documents extends CI_Controller {
         $this->load->library("singularvaluedecomposition");		
 		$svd = $this->singularvaluedecomposition->SVD($matrix_tfidf);
 
-		// $m = count($matrix_tfidf);
-  		// $n = count($matrix_tfidf[0]);
-
-		// $matrix_Vt = $this->singularvaluedecomposition->matrixRound($svd['V']);
-		// $matrix_S  = $this->singularvaluedecomposition->matrixRound($svd['S']);
-
 		$matrix_Vt = $this->singularvaluedecomposition->matrixRound($svd['V']);
 		$matrix_S  = $this->singularvaluedecomposition->matrixRound($svd['S']);
-
-
-
-		// var_dump($matrix_Vt);
-		// echo "<br><br>";
-		// var_dump($matrix_S);
-
-		// exit();
 
 
 
@@ -572,17 +558,12 @@ class Documents extends CI_Controller {
         $rows_matrix_S = count($matrix_S);
         $cols_matrix_S = count($matrix_S[0]);
 
-  //       for($i = 0; $i < $rows_matrix_Vt; $i++){
-		// 	for($p = 0; $p < $cols_matrix_Vt; $p++){
-		// 		$rows_matrix_Vt[$i][$p] = 
-		// 	}
-		// }
         
         if($cols_matrix_Vt == $rows_matrix_S){
             for($i = 0; $i < $rows_matrix_Vt; $i++){
-                for($j = 0; $j < $cols_matrix_S; $j++){
+                for($j = 0; $j < $rows_matrix_S; $j++){
                     for($p = 0; $p < $cols_matrix_Vt; $p++){
-                        $matrix_LSA[$i][$j] += $matrix_Vt[$i][$p] * $matrix_S[$p][$j];
+                        $matrix_LSA[$i][$p] = $matrix_Vt[$i][$p] * $matrix_S[$p][$p];
                         // if($matrix >= 0){
                         // 	$matrix_LSA[$i][$j] = sqrt($matrix);
                         // }else{
@@ -593,6 +574,7 @@ class Documents extends CI_Controller {
                 }
             }
         }
+
 
         $lsa_Length = [];
 
@@ -605,21 +587,37 @@ class Documents extends CI_Controller {
 
         // var_dump($id_sentences);
 
+        $sqrt=[];
+
         foreach ($lsa_Length as $key => $value) {
         	if($value >= 0){
-                    $value = sqrt($value);
+                    $sqrt[$key] = sqrt($value);
             }else{
-                    $value = -sqrt(abs($value));
+                    $sqrt[$key] = -sqrt(abs($value));
             }
-        	$data = array(
-		        	'f1' => $value
-		    );
 
-        	$this->db->where('id_sentence', $id_sentences[$key]);
-		    $this->db->update('sentence', $data);
+		    if($id_sentences !== null){
+		    	$data = array(
+		        	'f1' =>  $sqrt[$key]
+		    	);
+
+		    	$this->db->where('id_sentence', $id_sentences[$key]);
+		    	$this->db->update('sentence', $data);
+		    }
         }
 
-        return $this->db->where('fk_documents', $id_doc)->get('sentence')->result();
+        $arr_lsa[] = [
+			'matrix_Vt' => $matrix_Vt,
+			'matrix_S' =>  $matrix_S,
+			'matrix_LSA' => $matrix_LSA,
+			'lsa_length' => $lsa_Length,
+			'sqrt' => $sqrt
+		];
+
+		// var_dump($array_martix[0]['matrix_tfidf']);
+  //       exit();
+
+		return $arr_lsa;
 
 	}
 
@@ -696,6 +694,7 @@ class Documents extends CI_Controller {
 
 		$preprocess = $this->pre_processing($plain, $id);
 		$a = $this->tf_idf($preprocess, $id);
+		$lsa = $this->lsa($a[0]['matrix_tfidf']);
 
 		$data['matrix_tf'] 		= $a[0]['matrix_tf'];
 		$data['text_df'] 		= $a[0]['text_df'];
@@ -703,6 +702,12 @@ class Documents extends CI_Controller {
 		$data['text_idfplus1'] 	= $a[0]['text_idfplus1'];
 		$data['matrix_tfidf'] 	= $a[0]['matrix_tfidf'];
 		$data['text_list_word'] = $a[0]['text_list_word'];
+		$data['matrix_Vt'] 		= $lsa[0]['matrix_Vt'];
+		$data['matrix_S'] 		= $lsa[0]['matrix_S'];
+		$data['matrix_LSA'] 	= $lsa[0]['matrix_LSA'];
+		$data['lsa_length'] 	= $lsa[0]['lsa_length'];
+		$data['sqrt'] 			= $lsa[0]['sqrt'];
+
 
 		$data['count'] = 0;
 

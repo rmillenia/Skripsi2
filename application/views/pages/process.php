@@ -127,54 +127,129 @@
                                                 </div>
                                                 <div class="tab-pane fade" id="pills-tfidf-nobd" role="tabpanel" aria-labelledby="pills-tfidf-tab-nobd">
                                                    <div class="table-responsive">
-                                                        <table id="get-tfidf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th rowspan="2" class="text-center"> No </th>
-                                                                    <th rowspan="2" class="text-center"> Kata - Penting </th>
-                                                                    <th colspan="<?= $count;?>" class="text-center"> TF-IDF </th>
-                                                                </tr>
-                                                                <tr>
-                                                                    <?php
-                                                                    for ($i=1; $i <= $count ; $i++) { ?>
-                                                                    <th class="text-center">Kalimat ke - <?= $i; ?></th>
-                                                                    <?php } ?>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <?php foreach ($matrix_tfidf as $key => $value) {?>
-                                                                <tr>
-                                                                    <td><?= $no = $key + 1; ?></td>
-                                                                    <td><?=$text_list_word[$key]?></td>
-                                                                    <?php foreach ($value as $k => $v) {?>
-                                                                    <td><?= $matrix_tfidf[$key][$k];?></td>
-                                                                    <?php }?>
-                                                                </tr>
+                                                    <table id="get-tfidf" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th rowspan="2" class="text-center"> No </th>
+                                                                <th rowspan="2" class="text-center"> Kata - Penting </th>
+                                                                <th colspan="<?= $count;?>" class="text-center"> TF-IDF </th>
+                                                            </tr>
+                                                            <tr>
+                                                                <?php
+                                                                for ($i=1; $i <= $count ; $i++) { ?>
+                                                                <th class="text-center">Kalimat ke - <?= $i; ?></th>
+                                                                <?php } ?>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php foreach ($matrix_tfidf as $key => $value) {?>
+                                                            <tr>
+                                                                <td><?= $no = $key + 1; ?></td>
+                                                                <td><?=$text_list_word[$key]?></td>
+                                                                <?php foreach ($value as $k => $v) {?>
+                                                                <td><?= $matrix_tfidf[$key][$k];?></td>
                                                                 <?php }?>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
+                                                            </tr>
+                                                            <?php }?>
+                                                        </tbody>
+                                                    </table>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade" id="pills-method" role="tabpanel" aria-labelledby="pills-method-tab">
-                                            <div class="table-responsive"></div>
-                                        </div>
-                                        <div class="tab-pane fade" id="pills-result" role="tabpanel" aria-labelledby="pills-result-tab">
-                                           <div class="table-responsive">
-                                                <table id="get-result" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
-                                                </table>
-                                            </div>
-                                        </div>
                                     </div>
+                                    <div class="tab-pane fade" id="pills-method" role="tabpanel" aria-labelledby="pills-method-tab">
+                                        <div class="table-responsive">
+                                            <table id="get-Vt" class="table-bordered" width="100%" style="width:100%" cellspacing="0">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="<?php echo count($matrix_Vt);?>" class="text-center">  Matrix V<sup>t</sup></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="text-center">
+                                                   <?php foreach ($matrix_Vt as $key => $value):?>
+                                                    <tr>
+                                                        <?php foreach ($value as $k => $i): 
+                                                        echo '<td> '.$i.' </td>';
+                                                        endforeach; ?>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <br><br>
+                                    <div class="table-responsive">
+                                        <table id="get-S" class="table-bordered" width="100%" style="width:100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="<?php echo count($matrix_S);?>" class="text-center">  Matrix S</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-center">
+                                               <?php foreach ($matrix_S as $key => $value):?>
+                                                <tr>
+                                                    <?php foreach ($value as $k => $i): 
+                                                    echo '<td> '.$i.' </td>';
+                                                    endforeach; ?>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
+                                <br><br>
+                                <div class="table-responsive">
+                                    <table id="get-length" class="table-bordered" width="100%" style="width:100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                               <th colspan="<?php echo count($matrix_LSA)+1;?>" class="text-center">  Matrix LSA (V<sub>ij</sub> * S<sub>jj</sub>)</th>
+                                           </tr>
+                                       </thead>
+                                       <tbody class="text-center">
+                                        <tr>
+                                            <td rowspan="<?php echo count($matrix_LSA)+1;?>"></td>
+                                        </tr>
+                                        <?php foreach ($matrix_LSA as $key => $value):?>
+                                            <tr>
+                                                <?php foreach ($value as $k => $i): 
+                                                echo '<td> '.$i.' </td>';
+                                                endforeach; ?>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        <tr>
+                                            <td> &sum;<sub>j</sub><sup>n</sup>&nbsp;&nbsp; V<sub>ij</sub> * S<sub>jj</sub></td>
+                                            <?php foreach ($lsa_length as $key => $value):
+                                            echo '<td><b> '.$value.' </b></td>';
+                                            endforeach; ?>
+                                        </tr>
+                                        <tr>
+                                            <td>Length = &radic; &sum;<sub>j</sub><sup>n</sup>&nbsp;&nbsp; V<sub>ij</sub> * S<sub>jj</sub></td>
+                                            <?php foreach ($sqrt as $key => $a):
+                                            if($a == 0){
+                                                echo '<td><b> '.$a.' </b></td>';
+                                            }else{
+                                                echo '<td><b> '.number_format($a,4).' </b></td>';
+                                            }
+                                            endforeach; ?>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-result" role="tabpanel" aria-labelledby="pills-result-tab">
+                           <div class="table-responsive">
+                            <table id="get-result" class="display table table-bordered table-striped table-hover" width="100%" style="width:100%" cellspacing="0">
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </body>
 <?php $this->load->view('elements/footer') ?>
 
